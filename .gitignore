@@ -1,0 +1,4 @@
+*.parquet
+noise_levels_parquets
+.venv
+*__pycache__*
