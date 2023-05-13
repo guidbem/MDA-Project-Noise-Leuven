@@ -88,7 +88,7 @@ def update_heatmap(selected_month):
 
     return figure
 
-# Replace this function with your own data retrieval logic
+# Replace this function with your own data retrieval logic ###
 def get_month_data(selected_month):
     # Return data for the selected month
     # Replace this with your data retrieval logic
