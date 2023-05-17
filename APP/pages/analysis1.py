@@ -88,9 +88,16 @@ layout = html.Div([
         options=dropdown_options,
         placeholder="Select a Month"       
     ),
-    dcc.Graph(id='heatmap-graph'),
-    dcc.Graph(id='donut-chart')
+    html.Div([
+        html.Div([
+            dcc.Graph(id='heatmap-graph')
+        ], style={'width': '50%', 'display': 'inline-block'}),
+        html.Div([
+            dcc.Graph(id='donut-chart')
+        ], style={'width': '50%', 'display': 'inline-block'})
+    ])
 ])
+
 
 
 @callback(
