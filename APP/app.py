@@ -28,6 +28,11 @@ nav_bar = html.Nav(
             href="/model",
             className="link",  # Added "link" class
         ),
+        dcc.Link(
+            "About Us",
+            href="/about_us",
+            className="link",  # Added "link" class
+        ),
     ],
     style={
         "background-color": "white",
@@ -50,7 +55,6 @@ app.layout = html.Div(
         dash.page_container
     ]
 )
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)
