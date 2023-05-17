@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 import dash
+import plotly.express as px
 from dash import html, dcc, callback, Input, Output
 
 
@@ -17,6 +18,12 @@ hourly_data.reset_index(inplace=True)
 hourly_data['month'] = hourly_data['datetime'].dt.month
 hourly_data['time'] = hourly_data['datetime'].dt.time
 hourly_data['day_of_week'] = hourly_data['datetime'].dt.weekday
+
+# Resample the data to daily frequency
+daily_data = df.resample('D').agg({'laeq': 'mean', 'lceq': 'mean', 'lamax': 'max', 'lcpeak': 'max'})
+# Reset the index to make the datetime column a regular column again
+daily_data.reset_index(inplace=True)
+
 # Create a dictionary mapping numerical values to month names
 day_mapping = {
     0: "Monday",
@@ -86,8 +93,16 @@ layout = html.Div([
     dcc.Dropdown(
         id='month-dropdown',
         options=dropdown_options,
-        placeholder="Select a Month"       
+        placeholder="Select a Month",
+        style={"display": "inline-block", "width": "200px"}  
     ),
+    html.Div(className="graph", style={"background-color": "white"}, children=[
+        html.Div(style={"marginBottom": "10px", "display": "flex", "justify-content": "flex-end"}, children=[
+            html.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-right": "50px"}),
+            html.Button("Monthly Data", id="monthly-button", n_clicks=0, style={"margin-right": "25px"}),
+        ]),
+        dcc.Graph(id="line-graph")
+    ]),
     html.Div([
         html.Div([
             dcc.Graph(id='heatmap-graph')
@@ -143,4 +158,28 @@ def update_donut(month):
         height=400,
         width=500
     )
+    return fig
+
+
+@callback(
+    Output('line-graph', 'figure'),
+    [Input('month-dropdown', 'value'),
+     Input('yearly-button', 'n_clicks'),
+     Input('monthly-button', 'n_clicks')]
+)
+def update_line(month, yearly_clicks, monthly_clicks):
+
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    filtered_df = hourly_data[hourly_data['month'] == month]
+    if button_id == "monthly-button":
+        fig = px.line(filtered_df, x="datetime", y="laeq", title=f"Leuven Noise - {month} Data")
+
+    elif button_id == "month-dropdown":
+        filtered_df = hourly_data[hourly_data['month'] == month]
+        fig = px.line(filtered_df, x="datetime", y="laeq", title=f"Leuven Noise - {month} Data")
+
+    else:
+        # Yearly Data
+        fig = px.line(daily_data, x="datetime", y="laeq", title="Leuven Noise - Yearly Data")
     return fig
