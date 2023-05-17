@@ -62,6 +62,9 @@ month_mapping = {
 hourly_data['month'] = hourly_data['month'].map(month_mapping)
 
 df_donut = pd.read_csv("doughnut_data.csv")
+# Drop rows with values 'Not Available' and 'Unsupported' in the noise event type column
+df_donut = df_donut[~df_donut['noise_event_laeq_primary_detected_class'].isin(['Not Available', 'Unsupported'])]
+
 
 # Create the dropdown menu options
 dropdown_options = [{'label': month, 'value': month} for month in ['January', "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", 'December']]
