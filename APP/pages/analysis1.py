@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 import dash
 import plotly.express as px
 from dash import html, dcc, callback, Input, Output
+import dash_bootstrap_components as dbc
 
 
 dash.register_page(__name__, path='/analysis-1')
@@ -93,18 +94,52 @@ option_style = {
 
 # Define the layout of the app
 layout = html.Div([
+
     dcc.Dropdown(
         id='month-dropdown',
         options=dropdown_options,
         placeholder="Select a Month",
-        style={"display": "inline-block", "width": "200px"}  
+        style={"position": "absolute", "zIndex": "1", "width": "200px"}
     ),
-    html.Div(className="graph", style={"background-color": "white"}, children=[
+    html.Div(className="graph", style={"background-color": "#F5F5F5"}, children=[
         html.Div(style={"marginBottom": "10px", "display": "flex", "justify-content": "flex-end"}, children=[
-            html.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-right": "50px"}),
-            html.Button("Monthly Data", id="monthly-button", n_clicks=0, style={"margin-right": "25px"}),
+            dbc.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-right": "50px","margin-top": "0px","zIndex": "2"}, outline=False, color="danger", className="me-1"),
+            dbc.Button("Monthly Data", id="monthly-button", n_clicks=0, style={"margin-right": "25px","margin-top": "0px","zIndex": "0"},outline=False, color="danger", className="me-1"),
         ]),
-        dcc.Graph(id="line-graph")
+        dcc.Graph(id="line-graph", style={"margin-left": "400px","margin-top": "180px"}),
+        html.Div(
+            style={
+                "position": "absolute",
+                "left": "0",
+                "top": "68px",
+                "width": "100%",
+                "height": "2px",
+                "backgroundColor": "lightgray",
+                "zIndex": "0"
+            }
+        ),
+        html.Div(
+            style={
+                "position": "absolute",
+                "left": "330px",
+                "top": "68px",
+                "width": "1px",
+                "height": "700px",
+                "backgroundColor": "lightgray",
+                "zIndex": "0"
+            }
+        ),
+        html.Div(
+            style={
+                "position": "absolute",
+                "left": "0",
+                "top": "766px",
+                "width": "100%",
+                "height": "2px",
+                "backgroundColor": "lightgray",
+                "zIndex": "0"
+            }
+        ),
     ]),
     html.Div([
         html.Div([
@@ -117,21 +152,44 @@ layout = html.Div([
 ])
 
 
-
 @callback(
     dash.dependencies.Output('heatmap-graph', 'figure'),
-    [dash.dependencies.Input('month-dropdown', 'value')]
+    [dash.dependencies.Input('month-dropdown', 'value'),
+     Input('yearly-button', 'n_clicks'),
+     Input('monthly-button', 'n_clicks')]
 )
-def update_heatmap(month):
+def update_heatmap(month, yearly_clicks, monthly_clicks):
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
     filtered_df = hourly_data[hourly_data['month'] == month]
     heatmap_data = filtered_df.pivot_table(index='time', columns='day_of_week', values='laeq', aggfunc='mean')
+    
+    if button_id == "monthly-button":
+        fig = go.Figure(data=go.Heatmap(
+            z=heatmap_data.values[::-1],
+            x=heatmap_data.columns,
+            y=heatmap_data.index[::-1],
+            colorscale='Viridis'
+        ))
 
-    fig = go.Figure(data=go.Heatmap(
-        z=heatmap_data.values,
-        x=heatmap_data.columns,
-        y=heatmap_data.index,
-        colorscale='Viridis'
-    ))
+    elif button_id == "month-dropdown":
+        filtered_df = hourly_data[hourly_data['month'] == month]
+        heatmap_data = filtered_df.pivot_table(index='time', columns='day_of_week', values='laeq', aggfunc='mean')
+        fig = go.Figure(data=go.Heatmap(
+            z=heatmap_data.values[::-1],
+            x=heatmap_data.columns,
+            y=heatmap_data.index[::-1],
+            colorscale='Viridis'
+        ))
+    
+    else:
+        heatmap_data = hourly_data.pivot_table(index='time', columns='day_of_week', values='laeq', aggfunc='mean')
+        fig = go.Figure(data=go.Heatmap(
+            z=heatmap_data.values[::-1],
+            x=heatmap_data.columns,
+            y=heatmap_data.index[::-1],
+            colorscale='Viridis'
+        ))
 
     fig.update_layout(
         xaxis_title='Day of the Week',
@@ -144,17 +202,37 @@ def update_heatmap(month):
 
 @callback(
     dash.dependencies.Output('donut-chart', 'figure'),
-    [dash.dependencies.Input('month-dropdown', 'value')]
+    [dash.dependencies.Input('month-dropdown', 'value'),
+     Input('yearly-button', 'n_clicks'),
+     Input('monthly-button', 'n_clicks')]
 )
-def update_donut(month):
+def update_donut(month, yearly_clicks, monthly_clicks):
+        
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
     filtered_df_donut = df_donut[df_donut['month'] == month]
     event_frequency = filtered_df_donut['noise_event_laeq_primary_detected_class'].value_counts()
-
-    fig = go.Figure(data=go.Pie(
-        labels=event_frequency.index,
-        values=event_frequency.values,
-        hole=0.4
-    ))
+    if button_id == "monthly-button":
+        fig = go.Figure(data=go.Pie(
+            labels=event_frequency.index,
+            values=event_frequency.values,
+            hole=0.4
+        ))
+    elif button_id == "month-dropdown":
+        filtered_df_donut = df_donut[df_donut['month'] == month]
+        event_frequency = filtered_df_donut['noise_event_laeq_primary_detected_class'].value_counts()
+        fig = go.Figure(data=go.Pie(
+            labels=event_frequency.index,
+            values=event_frequency.values,
+            hole=0.4
+        ))
+    else:
+        event_frequency = df_donut['noise_event_laeq_primary_detected_class'].value_counts()
+        fig = go.Figure(data=go.Pie(
+            labels=event_frequency.index,
+            values=event_frequency.values,
+            hole=0.4
+        ))
 
     fig.update_layout(
         title='Event Frequency',
@@ -176,13 +254,33 @@ def update_line(month, yearly_clicks, monthly_clicks):
     button_id = ctx.triggered[0]["prop_id"].split(".")[0]
     filtered_df = hourly_data[hourly_data['month'] == month]
     if button_id == "monthly-button":
-        fig = px.line(filtered_df, x="datetime", y="laeq", title=f"Leuven Noise - {month} Data")
+        title_plot=f"Leuven Noise - {month} Data"
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['laeq'], mode='lines', name='laeq',line=dict(color='navy')))
+        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['lceq'], mode='lines', name='lceq',line=dict(color='red')))
 
     elif button_id == "month-dropdown":
+        title_plot=f"Leuven Noise - {month} Data"
         filtered_df = hourly_data[hourly_data['month'] == month]
-        fig = px.line(filtered_df, x="datetime", y="laeq", title=f"Leuven Noise - {month} Data")
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['laeq'], mode='lines', name='laeq',line=dict(color='navy')))
+        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['lceq'], mode='lines', name='lceq',line=dict(color='red')))
 
     else:
         # Yearly Data
-        fig = px.line(daily_data, x="datetime", y="laeq", title="Leuven Noise - Yearly Data")
+        title_plot="Leuven Noise - Yearly Data"
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['laeq'], mode='lines', name='laeq',line=dict(color='navy')))
+        fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['lceq'], mode='lines', name='lceq',line=dict(color='red')))
+
+
+    fig.update_layout(
+        title={
+            "text": f"<b>{title_plot}</b>",
+        },
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgba(0, 0, 0, 0)',
+        width=1100,
+        height=480
+    )
     return fig
