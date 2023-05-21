@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 import dash
+from dash import dash_table
 import plotly.express as px
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
@@ -9,8 +10,16 @@ import dash_bootstrap_components as dbc
 dash.register_page(__name__, path='/model')
 
 
-# Define the layout
+data = {
+    'Accuracy': [0],
+    'Precision': [0],
+    'Recall': [0],
+    'F1-Score': [0]
+}
+df = pd.DataFrame(data)
 
+
+# Define the layout
 layout = html.Div([
 
     html.H1('Model - To do:'),
@@ -19,6 +28,15 @@ layout = html.Div([
         html.P('Confusion Matrix, Classification Table, ROC curve, Insert .csv file')
     ]),
     #--------- Add other necessary things here ---------#
+    html.Div(
+        dash_table.DataTable(
+            id='table',
+            columns=[{"name": i, "id": i} for i in df.columns],
+            data=df.to_dict('records'),
+            style_table={'height': '300px', 'overflowY': 'auto'}
+        ),
+        style={'width': '300px'}
+    ),
 
     # For the new upload
     dcc.Upload(dbc.Button('Upload File', id="upload-button", n_clicks=0, 
