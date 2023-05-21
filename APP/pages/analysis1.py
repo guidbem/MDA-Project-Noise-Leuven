@@ -8,6 +8,7 @@ import dash_bootstrap_components as dbc
 
 dash.register_page(__name__, path='/analysis-1')
 
+
 df = pd.read_parquet("mergedfile.parquet")
 df['datetime'] = pd.to_datetime(df['date']) + pd.to_timedelta(df['hour']+":"+df["min"]+":00")
 df.set_index('datetime', inplace=True)
@@ -19,7 +20,7 @@ hourly_data.reset_index(inplace=True)
 hourly_data['month'] = hourly_data['datetime'].dt.month
 hourly_data['time'] = hourly_data['datetime'].dt.time
 hourly_data['day_of_week'] = hourly_data['datetime'].dt.weekday
-
+hourly_data.dropna()
 # Resample the data to daily frequency
 daily_data = df.resample('D').agg({'laeq': 'mean', 'lceq': 'mean', 'lamax': 'max', 'lcpeak': 'max'})
 # Reset the index to make the datetime column a regular column again
@@ -92,7 +93,8 @@ option_style = {
     'font-size': '12px'
 }
 
-# Define the layout of the app
+# Define the layout
+
 layout = html.Div([
 
     dcc.Dropdown(
