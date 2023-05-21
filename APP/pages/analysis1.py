@@ -1,3 +1,4 @@
+from dateutil import parser
 import pandas as pd
 import plotly.graph_objects as go
 import dash
@@ -25,6 +26,9 @@ hourly_data.dropna()
 daily_data = df.resample('D').agg({'laeq': 'mean', 'lceq': 'mean', 'lamax': 'max', 'lcpeak': 'max'})
 # Reset the index to make the datetime column a regular column again
 daily_data.reset_index(inplace=True)
+
+# Default month
+month="January"
 
 # Create a dictionary mapping numerical values to month names
 day_mapping = {
@@ -71,6 +75,7 @@ df_donut = df_donut[~df_donut['noise_event_laeq_primary_detected_class'].isin(['
 # Create the dropdown menu options
 dropdown_options = [{'label': month, 'value': month} for month in ['January', "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", 'December']]
 
+
 # Define the styles for the dropdown menu
 dropdown_style = {
     'width': '50px',
@@ -101,7 +106,13 @@ layout = html.Div([
         id='month-dropdown',
         options=dropdown_options,
         placeholder="Select a Month",
-        style={"position": "absolute", "zIndex": "1", "width": "200px"}
+        style={"position": "absolute", "zIndex": "1", "width": "200px"},
+    ),
+    html.Div(
+    children=[
+        html.H2("Highest lcpeak:"),
+        html.P(id='text-output'),
+        ], style={"position": "absolute", "zIndex": "1", "width": "2000px", "margin-left":"400px","margin-top":"80px"}
     ),
     html.Div(className="graph", style={"background-color": "#F5F5F5"}, children=[
         html.Div(style={"marginBottom": "10px", "display": "flex", "justify-content": "flex-end"}, children=[
@@ -155,12 +166,12 @@ layout = html.Div([
 
 
 @callback(
-    dash.dependencies.Output('heatmap-graph', 'figure'),
-    [dash.dependencies.Input('month-dropdown', 'value'),
+    Output('heatmap-graph', 'figure'),
+    [Input('month-dropdown', 'value'),
      Input('yearly-button', 'n_clicks'),
      Input('monthly-button', 'n_clicks')]
 )
-def update_heatmap(month, yearly_clicks, monthly_clicks):
+def update_heatmap(month, yearly_clicks, monthly_clicks):    
     ctx = dash.callback_context
     button_id = ctx.triggered[0]["prop_id"].split(".")[0]
     filtered_df = hourly_data[hourly_data['month'] == month]
@@ -286,3 +297,42 @@ def update_line(month, yearly_clicks, monthly_clicks):
         height=480
     )
     return fig
+
+@callback(
+    Output('text-output', 'children'),
+    [Input('month-dropdown', 'value'),
+     Input('yearly-button', 'n_clicks'),
+     Input('monthly-button', 'n_clicks')]
+)
+def update_text(month, yearly_clicks, monthly_clicks):
+    ctx = dash.callback_context
+    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    filtered_df = hourly_data[hourly_data['month'] == month]
+
+    if button_id == "monthly-button":
+        if month is None:
+            formatted_date=""
+
+        else:
+            hour_with_highest_lcpeak = filtered_df.loc[filtered_df['lcpeak'].idxmax(), 'datetime']
+            day_name = hour_with_highest_lcpeak.day
+            weekday_name = hour_with_highest_lcpeak.strftime("%A")
+            hour_name = hour_with_highest_lcpeak.strftime("%H:%M")
+            formatted_date = f"{day_name} {weekday_name} at {hour_name}"
+
+    elif button_id == "month-dropdown":
+        filtered_df = hourly_data[hourly_data['month'] == month]
+        hour_with_highest_lcpeak = filtered_df.loc[filtered_df['lcpeak'].idxmax(), 'datetime']
+        day_name = hour_with_highest_lcpeak.day
+        weekday_name = hour_with_highest_lcpeak.strftime("%A")
+        hour_name = hour_with_highest_lcpeak.strftime("%H:%M")
+        formatted_date = f"{day_name} {weekday_name} at {hour_name}"
+
+    else:
+        day_with_highest_lcpeak = daily_data.loc[daily_data['lcpeak'].idxmax(), 'datetime']
+        # Extract day name and weekday name
+        day_name = day_with_highest_lcpeak.strftime("%B %d")
+        weekday_name = day_with_highest_lcpeak.strftime("%A")
+        formatted_date = f"{day_name} {weekday_name}"
+
+    return formatted_date
