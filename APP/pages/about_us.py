@@ -5,7 +5,8 @@ from dash import html, dcc
 
 dash.register_page(__name__, path='/about_us')
 
-# Create the layout of your dashboard
+# Define the layout
+
 layout = html.Div([
     html.H1('About Us'),
     
