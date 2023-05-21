@@ -24,11 +24,10 @@ hourly_data['day_of_week'] = hourly_data['datetime'].dt.weekday
 hourly_data.dropna()
 # Resample the data to daily frequency
 daily_data = df.resample('D').agg({'laeq': 'mean', 'lceq': 'mean', 'lamax': 'max', 'lcpeak': 'max'})
+
 # Reset the index to make the datetime column a regular column again
 daily_data.reset_index(inplace=True)
-
-# Default month
-month="January"
+daily_data['month'] = daily_data['datetime'].dt.month
 
 # Create a dictionary mapping numerical values to month names
 day_mapping = {
@@ -66,6 +65,7 @@ month_mapping = {
 
 # Use the map function to replace numerical values with month names
 hourly_data['month'] = hourly_data['month'].map(month_mapping)
+daily_data['month'] = daily_data['month'].map(month_mapping)
 
 df_donut = pd.read_csv("doughnut_data.csv")
 # Drop rows with values 'Not Available' and 'Unsupported' in the noise event type column
@@ -110,14 +110,19 @@ layout = html.Div([
     ),
     html.Div(
     children=[
-        html.H2("Highest lcpeak:"),
+        html.H2("Highest lcpeak: "),
         html.P(id='text-output'),
-        ], style={"position": "absolute", "zIndex": "1", "width": "2000px", "margin-left":"400px","margin-top":"80px"}
+        ], style={"position": "absolute", "zIndex": "1", "width": "2000px", "margin-left":"500px","margin-top":"80px"}
+    ),
+    html.Div(
+    children=[
+        html.H2("Noisest day: (average laeq)"),
+        html.P(id='text-output-avg'),
+        ], style={"position": "absolute", "zIndex": "1", "width": "2000px", "margin-left":"900px","margin-top":"80px"}
     ),
     html.Div(className="graph", style={"background-color": "#F5F5F5"}, children=[
-        html.Div(style={"marginBottom": "10px", "display": "flex", "justify-content": "flex-end"}, children=[
-            dbc.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-right": "50px","margin-top": "0px","zIndex": "2"}, outline=False, color="danger", className="me-1"),
-            dbc.Button("Monthly Data", id="monthly-button", n_clicks=0, style={"margin-right": "25px","margin-top": "0px","zIndex": "0"},outline=False, color="danger", className="me-1"),
+        html.Div(style={"marginBottom": "10px", "display": "flex"}, children=[
+            dbc.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-left": "1350px","margin-top": "0px","zIndex": "2"}, outline=False, color="danger", className="me-1"),
         ]),
         dcc.Graph(id="line-graph", style={"margin-left": "400px","margin-top": "180px"}),
         html.Div(
@@ -137,7 +142,7 @@ layout = html.Div([
                 "left": "330px",
                 "top": "68px",
                 "width": "1px",
-                "height": "700px",
+                "height": "1400px",
                 "backgroundColor": "lightgray",
                 "zIndex": "0"
             }
@@ -154,130 +159,86 @@ layout = html.Div([
             }
         ),
     ]),
+    dcc.Dropdown(
+        id='month-dropdown2',
+        options=dropdown_options,
+        placeholder="Select a Month",
+        style={"position": "absolute", "zIndex": "1", "width": "200px","margin-top":"30px"},
+    ),
     html.Div([
         html.Div([
             dcc.Graph(id='heatmap-graph')
-        ], style={'width': '50%', 'display': 'inline-block'}),
+        ], style={'width': '500px', 'display': 'inline-block',"margin-left": "400px","margin-top": "50px"}),
         html.Div([
             dcc.Graph(id='donut-chart')
-        ], style={'width': '50%', 'display': 'inline-block'})
+        ], style={'width': '400px', 'display': 'inline-block',"margin-left": "120px","margin-bottom": "50px"})
     ])
 ])
 
-
 @callback(
+    Output('text-output', 'children'),
+    Output('text-output-avg', 'children'),
+    Output('line-graph', 'figure'),
+    Output('donut-chart', 'figure'),
     Output('heatmap-graph', 'figure'),
     [Input('month-dropdown', 'value'),
-     Input('yearly-button', 'n_clicks'),
-     Input('monthly-button', 'n_clicks')]
+     Input('month-dropdown2', 'value'),
+     Input('yearly-button', 'n_clicks')]
 )
-def update_heatmap(month, yearly_clicks, monthly_clicks):    
+def update_text(month1,month2, yearly_clicks):
+
+    month=None
     ctx = dash.callback_context
     button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    filtered_df = hourly_data[hourly_data['month'] == month]
-    heatmap_data = filtered_df.pivot_table(index='time', columns='day_of_week', values='laeq', aggfunc='mean')
-    
-    if button_id == "monthly-button":
-        fig = go.Figure(data=go.Heatmap(
-            z=heatmap_data.values[::-1],
-            x=heatmap_data.columns,
-            y=heatmap_data.index[::-1],
-            colorscale='Viridis'
-        ))
 
-    elif button_id == "month-dropdown":
+    if button_id == "month-dropdown":
+        month=month1
+
+    if button_id == "month-dropdown2":
+        month=month2
+
+    if button_id == "month-dropdown" or button_id == "month-dropdown2":
+        title_plot=f"Leuven Noise - {month} Data"
         filtered_df = hourly_data[hourly_data['month'] == month]
-        heatmap_data = filtered_df.pivot_table(index='time', columns='day_of_week', values='laeq', aggfunc='mean')
-        fig = go.Figure(data=go.Heatmap(
-            z=heatmap_data.values[::-1],
-            x=heatmap_data.columns,
-            y=heatmap_data.index[::-1],
-            colorscale='Viridis'
-        ))
-    
-    else:
-        heatmap_data = hourly_data.pivot_table(index='time', columns='day_of_week', values='laeq', aggfunc='mean')
-        fig = go.Figure(data=go.Heatmap(
-            z=heatmap_data.values[::-1],
-            x=heatmap_data.columns,
-            y=heatmap_data.index[::-1],
-            colorscale='Viridis'
-        ))
-
-    fig.update_layout(
-        xaxis_title='Day of the Week',
-        yaxis_title='Time',
-        title='Hourly Heatmap',
-        height=600,
-        width=600
-    )
-    return fig
-
-@callback(
-    dash.dependencies.Output('donut-chart', 'figure'),
-    [dash.dependencies.Input('month-dropdown', 'value'),
-     Input('yearly-button', 'n_clicks'),
-     Input('monthly-button', 'n_clicks')]
-)
-def update_donut(month, yearly_clicks, monthly_clicks):
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['laeq'], mode='lines', name='laeq',line=dict(color='navy')))
+        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['lceq'], mode='lines', name='lceq',line=dict(color='red')))
         
-    ctx = dash.callback_context
-    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    filtered_df_donut = df_donut[df_donut['month'] == month]
-    event_frequency = filtered_df_donut['noise_event_laeq_primary_detected_class'].value_counts()
-    if button_id == "monthly-button":
-        fig = go.Figure(data=go.Pie(
-            labels=event_frequency.index,
-            values=event_frequency.values,
-            hole=0.4
-        ))
-    elif button_id == "month-dropdown":
         filtered_df_donut = df_donut[df_donut['month'] == month]
         event_frequency = filtered_df_donut['noise_event_laeq_primary_detected_class'].value_counts()
-        fig = go.Figure(data=go.Pie(
-            labels=event_frequency.index,
-            values=event_frequency.values,
-            hole=0.4
-        ))
-    else:
-        event_frequency = df_donut['noise_event_laeq_primary_detected_class'].value_counts()
-        fig = go.Figure(data=go.Pie(
+        fig2 = go.Figure(data=go.Pie(
             labels=event_frequency.index,
             values=event_frequency.values,
             hole=0.4
         ))
 
-    fig.update_layout(
-        title='Event Frequency',
-        height=400,
-        width=500
-    )
-    return fig
+        heatmap_data = filtered_df.pivot_table(index='time', columns='day_of_week', values='laeq', aggfunc='mean')
+        fig3 = go.Figure(data=go.Heatmap(
+            z=heatmap_data.values[::-1],
+            x=heatmap_data.columns,
+            y=heatmap_data.index[::-1],
+            colorscale='Viridis'
+        ))
 
+        
+        if month is None:
+            formatted_date="",
+            formatted_date_avg=""
 
-@callback(
-    Output('line-graph', 'figure'),
-    [Input('month-dropdown', 'value'),
-     Input('yearly-button', 'n_clicks'),
-     Input('monthly-button', 'n_clicks')]
-)
-def update_line(month, yearly_clicks, monthly_clicks):
-
-    ctx = dash.callback_context
-    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    filtered_df = hourly_data[hourly_data['month'] == month]
-    if button_id == "monthly-button":
-        title_plot=f"Leuven Noise - {month} Data"
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['laeq'], mode='lines', name='laeq',line=dict(color='navy')))
-        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['lceq'], mode='lines', name='lceq',line=dict(color='red')))
-
-    elif button_id == "month-dropdown":
-        title_plot=f"Leuven Noise - {month} Data"
-        filtered_df = hourly_data[hourly_data['month'] == month]
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['laeq'], mode='lines', name='laeq',line=dict(color='navy')))
-        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['lceq'], mode='lines', name='lceq',line=dict(color='red')))
+        else:
+            filtered_df = hourly_data[hourly_data['month'] == month]
+            hour_with_highest_lcpeak = filtered_df.loc[filtered_df['lcpeak'].idxmax(), 'datetime']
+            day_name = hour_with_highest_lcpeak.day
+            weekday_name = hour_with_highest_lcpeak.strftime("%A")
+            hour_name = hour_with_highest_lcpeak.strftime("%H:%M")
+            max_value = filtered_df.lcpeak.max()
+            formatted_date = f"{day_name} {weekday_name} at {hour_name} ({max_value}dB)"
+            filtered_df = daily_data[daily_data['month'] == month]
+            day_with_highest_laeq = filtered_df.loc[filtered_df['laeq'].idxmax(), 'datetime']
+            day_name = day_with_highest_laeq.day
+            weekday_name = day_with_highest_laeq.strftime("%A")
+            max_value = round(filtered_df.laeq.max(),2)
+            formatted_date_avg = f"{day_name} {weekday_name} ({max_value}dB)"
 
     else:
         # Yearly Data
@@ -285,6 +246,33 @@ def update_line(month, yearly_clicks, monthly_clicks):
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['laeq'], mode='lines', name='laeq',line=dict(color='navy')))
         fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['lceq'], mode='lines', name='lceq',line=dict(color='red')))
+        
+        event_frequency = df_donut['noise_event_laeq_primary_detected_class'].value_counts()
+        fig2 = go.Figure(data=go.Pie(
+            labels=event_frequency.index,
+            values=event_frequency.values,
+            hole=0.4
+        ))
+
+        heatmap_data = hourly_data.pivot_table(index='time', columns='day_of_week', values='laeq', aggfunc='mean')
+        fig3 = go.Figure(data=go.Heatmap(
+            z=heatmap_data.values[::-1],
+            x=heatmap_data.columns,
+            y=heatmap_data.index[::-1],
+            colorscale='Viridis'
+        ))
+
+        day_with_highest_lcpeak = daily_data.loc[daily_data['lcpeak'].idxmax(), 'datetime']
+        # Extract day name and weekday name
+        day_name = day_with_highest_lcpeak.strftime("%B %d")
+        weekday_name = day_with_highest_lcpeak.strftime("%A")
+        max_value = daily_data.lcpeak.max()
+        formatted_date = f"{day_name} {weekday_name} ({max_value}dB)"
+        day_with_highest_laeq = daily_data.loc[daily_data['laeq'].idxmax(), 'datetime']
+        day_name = day_with_highest_laeq.strftime("%B %d")
+        weekday_name = day_with_highest_laeq.strftime("%A")
+        max_value = round(daily_data.laeq.max(),2)
+        formatted_date_avg = f"{day_name} {weekday_name} ({max_value}dB)"
 
 
     fig.update_layout(
@@ -296,43 +284,19 @@ def update_line(month, yearly_clicks, monthly_clicks):
         width=1100,
         height=480
     )
-    return fig
 
-@callback(
-    Output('text-output', 'children'),
-    [Input('month-dropdown', 'value'),
-     Input('yearly-button', 'n_clicks'),
-     Input('monthly-button', 'n_clicks')]
-)
-def update_text(month, yearly_clicks, monthly_clicks):
-    ctx = dash.callback_context
-    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    filtered_df = hourly_data[hourly_data['month'] == month]
+    fig2.update_layout(
+        title='Event Frequency',
+        height=400,
+        width=500
+    )
 
-    if button_id == "monthly-button":
-        if month is None:
-            formatted_date=""
+    fig3.update_layout(
+        xaxis_title='Day of the Week',
+        yaxis_title='Time',
+        title='Hourly Heatmap',
+        height=600,
+        width=600
+    )
 
-        else:
-            hour_with_highest_lcpeak = filtered_df.loc[filtered_df['lcpeak'].idxmax(), 'datetime']
-            day_name = hour_with_highest_lcpeak.day
-            weekday_name = hour_with_highest_lcpeak.strftime("%A")
-            hour_name = hour_with_highest_lcpeak.strftime("%H:%M")
-            formatted_date = f"{day_name} {weekday_name} at {hour_name}"
-
-    elif button_id == "month-dropdown":
-        filtered_df = hourly_data[hourly_data['month'] == month]
-        hour_with_highest_lcpeak = filtered_df.loc[filtered_df['lcpeak'].idxmax(), 'datetime']
-        day_name = hour_with_highest_lcpeak.day
-        weekday_name = hour_with_highest_lcpeak.strftime("%A")
-        hour_name = hour_with_highest_lcpeak.strftime("%H:%M")
-        formatted_date = f"{day_name} {weekday_name} at {hour_name}"
-
-    else:
-        day_with_highest_lcpeak = daily_data.loc[daily_data['lcpeak'].idxmax(), 'datetime']
-        # Extract day name and weekday name
-        day_name = day_with_highest_lcpeak.strftime("%B %d")
-        weekday_name = day_with_highest_lcpeak.strftime("%A")
-        formatted_date = f"{day_name} {weekday_name}"
-
-    return formatted_date
+    return formatted_date, formatted_date_avg,fig,fig2,fig3
