@@ -57,6 +57,15 @@ df_meteo = df_meteo.with_columns(
     pl.col('Minute').cast(pl.Int32)
     )
 
+# Converts the hour and minute columns in i32 columns
+df_events = df_events.with_columns(
+    pl.col('hour').cast(pl.Int32),
+    pl.col('minute').cast(pl.Int32),
+    pl.col('hour_rounded').cast(pl.Int32),
+    pl.col('minute_rounded').cast(pl.Int32),
+    pl.col('second').cast(pl.Int32)
+    )
+
 # Groups the meteo data by date, hour and minute and takes the mean of the other columns
 df_meteo = df_meteo.groupby(['date', 'Hour', 'Minute']).mean()
 
