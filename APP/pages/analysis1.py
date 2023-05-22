@@ -127,7 +127,7 @@ layout = html.Div([
     # Interactive Text for displaying the noisiest day
     html.Div(
     children=[
-        html.H2("Noisest day:"),
+        html.H2("Noisiest day:"),
         html.P(id='text-output-avg'),
         ], style= box_style_avg_laeq
     ),
