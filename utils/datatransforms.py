@@ -1,6 +1,13 @@
 import os
 import pandas as pd
 import polars as pl
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.feature_extraction import FeatureHasher
+from sklearn.decomposition import PCA
+from category_encoders.binary import BinaryEncoder
+import numpy as np
+import pandas as pd
 
 
 def datetime_column_splitter(df, column_name):
@@ -76,4 +83,168 @@ def merge_noise_levels(df_ev_mt, n_shifts):
     df_ev_mt_lvls = pl.concat(month_dfs_list)
 
     return df_ev_mt_lvls
+
+class ColumnDropper(BaseEstimator, TransformerMixin):
+    def __init__(self, columns_to_drop):
+        self.columns_to_drop = columns_to_drop
+    
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X, y=None):
+        X_new = X.copy()
+        X_new.drop(columns=self.columns_to_drop, inplace=True)
+        return X_new
+    
+class DayPeriodHandler(BaseEstimator, TransformerMixin):
+    def __init__(self, hour_column='hour', day_period_column='day_period'):
+        self.hour_column = hour_column
+        self.day_period_column = day_period_column
+
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X, y=None):
+        X_new = X.copy()
+
+        bins = [-1,6,12,18,23]
+
+        labels = ['dawn', 'morning', 'afternoon', 'night']
+
+        X_new[self.day_period_column] = pd.cut(
+            X_new[self.hour_column], 
+            bins=bins, 
+            labels=labels).astype(str)
+
+        return X_new
+
+
+class MonthHandler(BaseEstimator, TransformerMixin):
+    """
+    Transforms a date column into a month column.
+    The final column can be either strings of the month numbers (strategy 'month') 
+    or strings containing the seasons (strategy 'season').
+    """
+    def __init__(self, date_column='date', month_column='month', strategy='month'):
+        self.date_column = date_column
+        self.month_column = month_column
+        self.strategy = strategy
+
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X, y=None):
+        X_new = X.copy()
+
+        X_new[self.date_column] = pd.to_datetime(X_new[self.date_column])
+
+        if self.strategy == 'month':
+            X_new[self.month_column] = X_new[self.date_column].dt.month.astype(str)
+        
+        elif self.strategy == 'season':
+            bins = [0,2,5,8,12]
+
+            labels = ['winter', 'spring', 'summer', 'autumn']
+
+            X_new[self.month_column] = pd.cut(
+                X_new[self.date_column].dt.month, 
+                bins=bins, 
+                labels=labels).astype(str)
+            
+            X_new[self.month_column] = np.where(
+                X_new[self.date_column].dt.month == 12,
+                'winter', 
+                X_new[self.month_column])
+        
+        return X_new
+
+
+class DayoftheWeekHandler(BaseEstimator, TransformerMixin):
+    """
+    Transforms a date column into a day of the week column.
+    The final column can be either strings of the weekday numbers (strategy 'full') 
+    or strings containing if it is a weekday or weekend (strategy 'weekday_cats').
+    """
+    def __init__(self, date_column='date', weekday_column='weekday', strategy='full'):
+        self.date_column = date_column
+        self.weekday_column = weekday_column
+        self.strategy = strategy
+
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X, y=None):
+        X_new = X.copy()
+
+        if self.strategy == 'full':
+            X_new[self.weekday_column] = X_new[self.date_column].dt.weekday.astype(str)
+        
+        elif self.strategy == 'weekend':
+            X_new[self.weekday_column] = np.where(
+                X_new[self.date_column].dt.weekday <= 3,
+                'weekday', 
+                'weekend')
+        
+        return X_new
+
+        
+class CustomEncoder(BaseEstimator, TransformerMixin):
+    def __init__(self, columns, strategy='one_hot'):
+        self.columns = columns
+        self.strategy = strategy
+        
+    def fit(self, X, y=None):
+        for col in self.columns:
+            if X[col].dtype != 'object':
+                X[col] = X[col].astype(str)
+
+        if self.strategy == 'one_hot':
+            cats_to_remove = [
+                X[i].value_counts().index[-1] 
+                for i in self.columns
+                ]
+            self.encoder = OneHotEncoder(drop=cats_to_remove)
+            self.encoder.fit(X[self.columns])
+        
+        elif self.strategy == 'binary':
+            self.encoder = BinaryEncoder(cols=self.columns)
+            self.encoder.fit(X)
+        
+        return self
+    
+    def transform(self, X, y=None):
+        X_new = X.copy()
+
+        if self.strategy == 'one_hot':
+            feature_names = self.encoder.get_feature_names_out(self.columns)
+            X_new[feature_names] = self.encoder.transform(X_new[self.columns]).toarray()
+            X_new.drop(columns=self.columns, inplace=True)
+        
+        elif self.strategy == 'binary':
+            X_new = self.encoder.transform(X_new)
+        
+        return X_new
+
+class PCATransformer(BaseEstimator, TransformerMixin):
+    def __init__(self, n_components=2, columns=None):
+        self.n_components = n_components
+        self.columns = columns
+        
+    def fit(self, X, y=None):
+        if self.columns is None:
+            self.columns = list(X.columns)
+        
+        self.pca = PCA(n_components=self.n_components)
+        self.pca.fit(X[self.columns])
+        self.comps_cols = ['noise_lvl_comp_'+str(i) for i in range(1,self.n_components+1)]
+
+        return self
+    
+    def transform(self, X, y=None):
+        X_new = X.copy()
+        X_new[self.comps_cols] = self.pca.transform(X_new[self.columns])
+        X_new.drop(columns=self.columns, inplace=True)
+        return X_new
+
+
 
