@@ -81,6 +81,31 @@ option_style = {
     'font-size': '12px'
 }
 
+# The styles of the boxes
+box_style_lcpeak = {
+    'height':'100px',
+    'width':'300px',
+    'background-color': 'lightblue',
+    'padding': '10px',
+    'border-radius': '5px',
+    'margin-bottom': '10px',
+    'position': 'absolute',
+    'top': '100px',
+    'left': '350px'
+}
+
+box_style_avg_laeq = {
+    'height':'100px',
+    'width':'300px',
+    'background-color': 'lightgreen',
+    'padding': '10px',
+    'border-radius': '5px',
+    'margin-bottom': '10px',
+    'position': 'absolute',
+    'top': '100px',
+    'right': '350px'
+}
+
 # Define the layout
 layout = html.Div([
     # First dropdown menu for selecting a month
@@ -96,15 +121,15 @@ layout = html.Div([
     children=[
         html.H2("Highest lcpeak: "),
         html.P(id='text-output'),
-        ], style={"position": "absolute", "zIndex": "1", "width": "2000px", "margin-left":"500px","margin-top":"80px"}
+        ], style= box_style_lcpeak
     ),
 
     # Interactive Text for displaying the noisiest day
     html.Div(
     children=[
-        html.H2("Noisest day: (average laeq)"),
+        html.H2("Noisest day:"),
         html.P(id='text-output-avg'),
-        ], style={"position": "absolute", "zIndex": "1", "width": "2000px", "margin-left":"900px","margin-top":"80px"}
+        ], style= box_style_avg_laeq
     ),
 
     # Line plot graph
