@@ -333,9 +333,9 @@ def update_text(month1,month2, yearly_clicks):
         height=480
     )
 
-    # Update layout for the donut chart
+# Update layout for the donut chart
     donut_fig.update_layout(
-        title='Event Frequency',
+        title='Event Frequency for ' + (month if month is not None else 'Year'),
         height=400,
         width=500
     )
@@ -344,7 +344,7 @@ def update_text(month1,month2, yearly_clicks):
     heatmap_fig.update_layout(
         xaxis_title='Day of the Week',
         yaxis_title='Time',
-        title='Hourly Heatmap',
+        title='Hourly Heatmap for ' + (month if month is not None else 'Year') ,
         height=600,
         width=600
     )
