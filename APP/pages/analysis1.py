@@ -10,8 +10,9 @@ import dash_bootstrap_components as dbc
 dash.register_page(__name__, path='/analysis-1')
 
 # Load the data and convert date, hour, and minute columns to datetime
-df = pd.read_parquet("mergedfile.parquet")
-df['datetime'] = pd.to_datetime(df['date']) + pd.to_timedelta(df['hour']+":"+df["min"]+":00")
+df = pd.read_parquet("noise_minutes.parquet")
+df = df.sort_values(by=["date","hour","min"])
+df['datetime'] = pd.to_datetime(df['date']) + pd.to_timedelta(df['hour'], unit="h")  +pd.to_timedelta(df["min"], unit="m")
 df.set_index('datetime', inplace=True)
 
 # Resample the data to hourly frequency and calculate the mean and max values
