@@ -217,7 +217,7 @@ class CustomEncoder(BaseEstimator, TransformerMixin):
 
         if self.strategy == 'one_hot':
             feature_names = self.encoder.get_feature_names_out(self.columns)
-            X_new[feature_names] = self.encoder.transform(X_new[self.columns]).toarray()
+            X_new[feature_names] = self.encoder.transform(X_new[self.columns].astype('U')).toarray()
             X_new.drop(columns=self.columns, inplace=True)
         
         elif self.strategy == 'binary':
