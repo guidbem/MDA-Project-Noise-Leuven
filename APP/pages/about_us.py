@@ -81,11 +81,11 @@ layout = html.Div(
                 html.Ul(
                     [
                         html.Li("Ana Sofia Mendes - r0925549"),
-                        html.Li("Federico Soldati - "),
-                        html.Li("Guilherme Consul Soares de Bem - "),
-                        html.Li("Ishika Jain - "),
-                        html.Li("Michelle Hernandez - "),
-                        html.Li("Sounak Ghosh - ")
+                        html.Li("Federico Soldati - r0924528"),
+                        html.Li("Guilherme Consul Soares de Bem - r0917829"),
+                        html.Li("Ishika Jain - r0915387"),
+                        html.Li("Michelle Hernandez - r0874160"),
+                        html.Li("Sounak Ghosh - r0914328")
                     ],
                     style={"text-align": "center", "margin-bottom": "70px"}
                 ),
