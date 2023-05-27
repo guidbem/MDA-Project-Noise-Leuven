@@ -288,9 +288,24 @@ def update_text(month1,month2, yearly_clicks):
 
         # Create the line graph
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['laeq'], mode='lines', name='laeq',line=dict(color='navy')))
-        fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['lceq'], mode='lines', name='lceq',line=dict(color='red')))
+        fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['laeq'], mode='lines', name='laeq',line=dict(color='red')))
+        fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['lceq'], mode='lines', name='lceq',line=dict(color='#457b9d')))
         
+        # Get the last day of each month
+        monthly_last_days = daily_data.groupby(pd.Grouper(key='datetime', freq='M')).max().reset_index()
+
+        # Add vertical lines at the end of each month
+        for _, row in monthly_last_days.iterrows():
+            line_datetime = row['datetime']
+            fig.add_shape(
+            type="line",
+            x0=line_datetime,
+            y0=45,
+            x1=line_datetime,
+            y1=66,
+            line=dict(color="#a8a8a8", width=1, dash="solid"),
+        )
+
         # Create the donut chart after calculating the event frequency
         event_frequency = df_donut['noise_event_laeq_primary_detected_class'].value_counts()
         donut_fig = go.Figure(data=go.Pie(
@@ -330,7 +345,14 @@ def update_text(month1,month2, yearly_clicks):
         plot_bgcolor='rgba(0, 0, 0, 0)',
         paper_bgcolor='rgba(0, 0, 0, 0)',
         width=1100,
-        height=480
+        height=480,
+        xaxis=dict(
+            title="Month",
+            tickmode='array',
+            tickvals=daily_data['datetime'][::30].dt.to_pydatetime(),
+            ticktext=daily_data['datetime'][::30].dt.strftime('%b %Y'),
+            tickangle=45
+        ),
     )
 
 # Update layout for the donut chart
