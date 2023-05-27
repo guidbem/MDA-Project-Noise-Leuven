@@ -1,7 +1,11 @@
 import os
 import shutil
 import zipfile
+<<<<<<< HEAD
 from utils import *
+=======
+from utils import download_gdrive_folder, merge_csv_files, convert_utc_to_cest_meteo
+>>>>>>> 33455bd3b2be72075a9692a89e3b4e76f5bf9224
 
 
 ######### METEO DATA #########
@@ -23,6 +27,9 @@ if not os.path.isfile(meteo_data_path):
     merge_csv_files(folder_meteo_data, meteo_data_path)
 
 print(f'Meteo Data Downloaded and Merged into {meteo_data_path}.')
+# Adjust the timezone from UTC to CEST
+print('Adjusting Meteo Data Timezone from UTC to CEST...')
+convert_utc_to_cest_meteo(meteo_data_path)
 shutil.rmtree(folder_meteo_data)
 
 ######### NOISE PERCENTILE AND EVENTS DATA #########
