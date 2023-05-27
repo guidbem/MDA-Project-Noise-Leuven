@@ -2,6 +2,8 @@ import gdown
 import polars as pl
 import os
 import glob
+import pandas as pd
+import numpy as np
 
 
 def download_gdrive_folder(url: str, output: str=None):
@@ -82,3 +84,37 @@ def merge_parquet_files(
 
     # Write the dataframe to a parquet file
     df.write_parquet(output_path)
+
+def convert_utc_to_cest_meteo(
+    file_path: str
+    ):
+    """
+    Converts all time values in a meteo parquet file from UTC to CEST.
+
+    Parameters:
+        - file_path   : The folder path containing the meteo parquet file
+    """
+    # Read the parquet file into a polars dataframe
+    df = pd.read_parquet(file_path)
+
+    # Convert the Hour column from UTC to CEST
+    df['Hour'] = df['Hour'] + 2
+
+    # Creates temporary Hour Column
+    df['Hour_tmp'] = df['Hour']
+
+    # Adjust invalid hour values
+    df['Hour'] = np.where(df['Hour'] > 23, df['Hour'] - 24, df['Hour'])
+
+    # Converts the date column to datetime
+    df['Date'] = pd.to_datetime(df['Date'])
+
+    # Adjust days from invalid hour values
+    df['Date'] = np.where(df['Hour_tmp'] > 23, df['Date'] + pd.DateOffset(1), df['Date'])
+    df['Date'] = df['Date'].astype(str)
+
+    # Drop the temporary Hour column
+    df.drop(columns=['Hour_tmp'], inplace=True)
+
+    # Write the dataframe to a parquet file
+    df.to_parquet(file_path)
