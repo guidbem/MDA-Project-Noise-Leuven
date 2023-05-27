@@ -37,13 +37,15 @@ nav_bar = html.Nav(
         ),
     ],
     style={
-        "background-color": "white",
+        "background-color": "white",  # change color accodingly
         "height": "70px",
         "display": "flex",
         "align-items": "center",
         "margin-left": "500px",  
         "margin-right": "500px",  
         "justify-content": "space-between",
+        "background-repeat": "no-repeat",
+        "background-size": "cover",
     },
 )
 

@@ -107,6 +107,18 @@ box_style_avg_laeq = {
     'right': '350px'
 }
 
+box_style_content = {
+    'height':'400px',
+    'width':'300px',
+    'background-color': 'lightpink',
+    'padding': '10px',
+    'border-radius': '5px',
+    'margin-bottom': '10px',
+    'position': 'absolute',
+    'top': '950px',
+    'left': '15px'
+}
+
 # Define the layout
 layout = html.Div([
     # First dropdown menu for selecting a month
@@ -131,6 +143,13 @@ layout = html.Div([
         html.H2("Noisiest day:"),
         html.P(id='text-output-avg'),
         ], style= box_style_avg_laeq
+    ),
+    # Interactive Text for every month content
+    html.Div(
+    children=[
+        html.H2("Some information"),
+        html.P(id='text-output-content'),
+        ], style= box_style_content
     ),
 
     # Line plot graph
@@ -201,7 +220,8 @@ layout = html.Div([
     ])
 ])
 
-@callback(
+@callback(    
+    Output('text-output-content', 'children'),
     Output('text-output', 'children'),
     Output('text-output-avg', 'children'),
     Output('line-graph', 'figure'),
@@ -211,7 +231,8 @@ layout = html.Div([
      Input('month-dropdown2', 'value'),
      Input('yearly-button', 'n_clicks')]
 )
-def update_text(month1,month2, yearly_clicks):
+
+def update_text(month1,month2, yearly_clicks): 
 
     # Initialise the month variable
     month=None
@@ -226,6 +247,38 @@ def update_text(month1,month2, yearly_clicks):
 
     if button_id == "month-dropdown2":
         month=month2
+    
+
+
+    # Content update for every month
+        
+    if month == "January":
+        formatted_content = "January, the first month of the year, or Exam period of Leuven in other words. In this month, it is noticed that, there is hardly any high levels of noise in the Sundays in the morning, slightly high levels of noise are observed in the evening, although it does not go throughout the night. While, for the other days of the week, high levels of noise are noticed throughout the day until evening, while for Fridays, we notice that the noise goes until late evening."
+    elif month == "February":
+        formatted_content = "Finally, its February the end of Exam period, or in other words time to celebrate and travel after a gruelling session of exams. The noise levels during Sundays are again very less. For the weekdays, the noise levels are mostly high during the mornings, although for Fridays, we notice a trend of high levels of noise that continues till the late evening."
+    elif month == "March":
+        formatted_content = "Back to normal life, going to lectures, libraries and same old boring life. For Fridays we notice the noise levels continuing throughout the day and even late in the night! Sundays are again very much devoid of higher levels of noise."
+    elif month == "April":
+        formatted_content = "This is April."
+    elif month == "May":
+        formatted_content = "This is May."
+    elif month == "June":
+        formatted_content = "This is June."
+    elif month == "July":
+        formatted_content = "This is July."
+    elif month == "August":
+        formatted_content = "This is August."
+    elif month == "September":
+        formatted_content = "This is September."
+    elif month == "October":
+       formatted_content = "This is October."
+    elif month == "November":
+        formatted_content = "This is November."
+    elif month == "December":
+        formatted_content = "This is December."
+    else:
+        formatted_content = ""
+        
 
     # Update the text, line graph, donut chart, and heatmap based on the selected month
     if button_id == "month-dropdown" or button_id == "month-dropdown2":
@@ -272,7 +325,7 @@ def update_text(month1,month2, yearly_clicks):
             weekday_name = hour_with_highest_lcpeak.strftime("%A")
             hour_name = hour_with_highest_lcpeak.strftime("%H:%M")
             max_value = filtered_df.lcpeak.max()
-            formatted_date = f"{day_name} {weekday_name} at {hour_name} ({max_value}dB)"
+            formatted_date = f"{month} {day_name} {weekday_name}, at {hour_name} ({max_value}dB)"
 
             # Filter the daily data based on the selected month to find the day with the highest laeq and extract relevant information
             filtered_df = daily_data[daily_data['month'] == month]
@@ -280,7 +333,7 @@ def update_text(month1,month2, yearly_clicks):
             day_name = day_with_highest_laeq.day
             weekday_name = day_with_highest_laeq.strftime("%A")
             max_value = round(filtered_df.laeq.max(),2)
-            formatted_date_avg = f"{day_name} {weekday_name} ({max_value}dB)"
+            formatted_date_avg = f"{month} {day_name}, {weekday_name} ({max_value}dB)"
 
     else:
         # Yearly Data
@@ -350,4 +403,4 @@ def update_text(month1,month2, yearly_clicks):
     )
 
     # Return the formatted date, formatted average date, line graph, donut chart, and heatmap graph
-    return formatted_date, formatted_date_avg, fig, donut_fig, heatmap_fig
+    return formatted_content, formatted_date, formatted_date_avg, fig, donut_fig, heatmap_fig
