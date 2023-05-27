@@ -84,34 +84,6 @@ def merge_parquet_files(
 
     # Write the dataframe to a parquet file
     df.write_parquet(output_path)
-<<<<<<< HEAD
-def sec_to_min(parquet_file_path: str, output_path: str):
-    import polars as pl
-
-    # Read the Parquet file using Polars
-    sec = pl.read_parquet(parquet_file_path)
-
-    # Split the result_timestamp column into date and time columns
-    sec = sec.with_columns(pl.col("result_timestamp").apply(lambda s: s.split(" ")[0], return_dtype=pl.Utf8).alias("date"))
-    sec = sec.with_columns(pl.col("result_timestamp").apply(lambda s: s.split(" ")[1], return_dtype=pl.Utf8).alias("time"))
-
-    # Split the time column into hour and min columns
-    sec = sec.with_columns(pl.col("time").apply(lambda s: s.split(":")[0], return_dtype=pl.Utf8).alias("hour"))
-    sec = sec.with_columns(pl.col("time").apply(lambda s: s.split(":")[1], return_dtype=pl.Utf8).alias("min"))
-    
-    # Convert the date column to datetime format, hour/min to integer
-    sec = sec.with_columns(pl.col("hour","min").cast(pl.Int64))
-    sec = sec.with_columns(pl.col("date").str.strptime(pl.Datetime, fmt="%d/%m/%Y", strict=False))
-    
-    
-    #Get the average values for laeq, lceq and max value for lamax, lcpeak
-    minu = sec.groupby(['date', 'hour', 'min']).agg([pl.col('laeq').mean(), pl.col('lamax').max(), pl.col('lcpeak').max(), pl.col('lceq').mean()])
-    minu=minu.sort(['date','hour','min'])
-
-    # Write the result to a Parquet file
-    minu.write_parquet(output_path)
-    
-=======
 
 def convert_utc_to_cest_meteo(
     file_path: str
@@ -146,4 +118,29 @@ def convert_utc_to_cest_meteo(
 
     # Write the dataframe to a parquet file
     df.to_parquet(file_path)
->>>>>>> 33455bd3b2be72075a9692a89e3b4e76f5bf9224
+
+def sec_to_min(parquet_file_path: str, output_path: str):
+    import polars as pl
+
+    # Read the Parquet file using Polars
+    sec = pl.read_parquet(parquet_file_path)
+
+    # Split the result_timestamp column into date and time columns
+    sec = sec.with_columns(pl.col("result_timestamp").apply(lambda s: s.split(" ")[0], return_dtype=pl.Utf8).alias("date"))
+    sec = sec.with_columns(pl.col("result_timestamp").apply(lambda s: s.split(" ")[1], return_dtype=pl.Utf8).alias("time"))
+
+    # Split the time column into hour and min columns
+    sec = sec.with_columns(pl.col("time").apply(lambda s: s.split(":")[0], return_dtype=pl.Utf8).alias("hour"))
+    sec = sec.with_columns(pl.col("time").apply(lambda s: s.split(":")[1], return_dtype=pl.Utf8).alias("min"))
+    
+    # Convert the date column to datetime format, hour/min to integer
+    sec = sec.with_columns(pl.col("hour","min").cast(pl.Int64))
+    sec = sec.with_columns(pl.col("date").str.strptime(pl.Datetime, fmt="%d/%m/%Y", strict=False))
+    
+    
+    #Get the average values for laeq, lceq and max value for lamax, lcpeak
+    minu = sec.groupby(['date', 'hour', 'min']).agg([pl.col('laeq').mean(), pl.col('lamax').max(), pl.col('lcpeak').max(), pl.col('lceq').mean()])
+    minu=minu.sort(['date','hour','min'])
+
+    # Write the result to a Parquet file
+    minu.write_parquet(output_path)
