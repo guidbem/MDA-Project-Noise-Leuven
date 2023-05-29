@@ -1,4 +1,4 @@
-from dash import Dash, dcc, html, Output, Input       # pip install dash
+from dash import Dash, dcc, html,callback, Output, Input       # pip install dash
 import dash_bootstrap_components as dbc               # pip install dash-bootstrap-components
 import plotly.express as px                     # pip install pandas; pip install plotly express
 import dash
@@ -57,17 +57,27 @@ card_main = dbc.Card(
     outline=True,  # True = remove the block colors from the background and header
 )
 
+button_group = dbc.ButtonGroup(
+    [
+        dbc.Button("A.  March", id="button-march", style={"width": "200px"}),
+        dbc.Button("B.   July", id="button-july", style={"width": "200px"}),
+        dbc.Button("C. August", id="button-august", style={"width": "200px"}),
+    ],
+    vertical=True,
+)
+
 card_question = dbc.Card(
     [
     
         dbc.CardBody([
             html.H2("Which is the loudest month at Naamsestraat?", className="card-title"),
-            dbc.ListGroup(
-                [
-                    dbc.ListGroupItem("A. March"),
-                    dbc.ListGroupItem("B. July"),
-                    dbc.ListGroupItem("C. August"),
-                ], flush=True)
+            button_group,
+            #dbc.ListGroup(
+            #    [
+            #        dbc.ListGroupItem("A. March"),
+            #        dbc.ListGroupItem("B. July"),
+            #        dbc.ListGroupItem("C. August"),
+            #    ], flush=True)
         ]),
     ], color="info",
 )
@@ -290,3 +300,21 @@ layout = html.Div([
      
 
 
+@callback(
+    Output("button-march", "color"),
+    Output("button-july", "color"),
+    Output("button-august", "color"),
+    Input("button-march", "n_clicks"),
+    Input("button-july", "n_clicks"),
+    Input("button-august", "n_clicks"),
+)
+def update_button_colors(n_clicks_march, n_clicks_july, n_clicks_august):
+    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
+    if "button-july" in changed_id:
+        return "primary", "success", "primary"
+    elif "button-march" in changed_id:
+        return "danger", "primary", "primary"
+    elif "button-august" in changed_id:
+        return "primary", "primary", "danger"
+    else:
+        return "primary","primary","primary"
