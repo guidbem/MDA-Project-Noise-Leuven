@@ -235,10 +235,17 @@ layout = html.Div([
         )
     ], align="center"),  # Vertical: start, center, end
                dbc.Row(
-        dbc.Col(html.H1("",
-                        className='text-sm-left'),
-                width=18)
+        dbc.Col(html.H1("Registered Noise events on Naamsestraat",
+                        className='text-sm-left',
+                                style={
+                                    "color": "#54B4D3",  # Change to a contrasting color
+                                    "fontWeight": "bold",
+                                    "fontSize": "48px",  # Increase font size
+                                    "opacity": 1.0  # Increase opacity
+                                })
     ),
+               ),
+               
     dbc.Row([
          
          # Add the map here
