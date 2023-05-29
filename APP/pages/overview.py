@@ -2,11 +2,37 @@ from dash import Dash, dcc, html, Output, Input       # pip install dash
 import dash_bootstrap_components as dbc               # pip install dash-bootstrap-components
 import plotly.express as px                     # pip install pandas; pip install plotly express
 import dash
+import folium
+from folium.plugins import FastMarkerCluster
+import pandas as pd
 
 
 dash.register_page(__name__, path='/')
 
+# Load the data
+df = pd.read_csv('doughnut_data.csv')
 
+# Latitude and longitude
+locations = {
+    '#object_id': [255439, 255444, 255442, 255443, 255441, 255440, 280324],
+    'latitude': [50.87723694791674, 50.87394683548034, 50.87452221086784, 50.874206694437916,
+                 50.87599947973591, 50.87660565869506, 50.878814448410864],
+    'longitude': [4.700756283424897, 4.700096339249199, 4.699913884931272, 4.700066041094888,
+                  4.700245812259932, 4.7006594527440955, 4.70085691226008]
+}
+
+locations_df = pd.DataFrame(locations)
+
+# Merge
+df = pd.merge(df, locations_df, on='#object_id', how='left')
+
+# Create map
+lats = df['latitude'].tolist()
+lons = df['longitude'].tolist()
+locations = list(zip(lats, lons))
+
+map1 = folium.Map(location=[50.878814448410864, 4.70085691226008], zoom_start=25.5)
+FastMarkerCluster(data=locations).add_to(map1)
 
 
 card_main = dbc.Card(
@@ -214,23 +240,20 @@ layout = html.Div([
                 width=18)
     ),
     dbc.Row([
-           dbc.Col([
-            dbc.Card(
-                [
-                    dbc.CardBody(
-                        html.P(
-                            "",
-                            className="card-text")
-                    ),
-                    dbc.CardImg(
-                        src="https://upload.wikimedia.org/wikipedia/commons/7/7a/Map_Leuven.jpg",
-                        bottom=True),
-                ],
-                
+         
+         # Add the map here
+    html.Div(
+        children=[
+            html.Iframe(
+                id="map",
+                srcDoc=map1._repr_html_(),
+                style={"width": "100%", "height": "600px", "border": "none"},
             )
-        ], width={'size':12, 'offset':0},
-           
-        )
+        ],
+        className="container",
+        style={"paddingTop": "50px", "textAlign": "center"},
+    )
+    
     ], align="center"),  # Vertical: start, center, end
         dbc.Row([
            dbc.Col([
