@@ -1,4 +1,5 @@
 from dateutil import parser
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import dash
@@ -219,39 +220,7 @@ def update_text(month1,month2, yearly_clicks):
         month=month1
 
     if button_id == "month-dropdown2":
-        month=month2
-    
-
-
-    # Content update for every month
-        
-    if month == "January":
-        formatted_content = "January, the first month of the year, or Exam period of Leuven in other words. In this month, it is noticed that, there is hardly any high levels of noise in the Sundays in the morning, slightly high levels of noise are observed in the evening, although it does not go throughout the night. While, for the other days of the week, high levels of noise are noticed throughout the day until evening, while for Fridays, we notice that the noise goes until late evening."
-    elif month == "February":
-        formatted_content = "Finally, its February the end of Exam period, or in other words time to celebrate and travel after a gruelling session of exams. The noise levels during Sundays are again very less. For the weekdays, the noise levels are mostly high during the mornings, although for Fridays, we notice a trend of high levels of noise that continues till the late evening."
-    elif month == "March":
-        formatted_content = "Back to normal life, going to lectures, libraries and same old boring life. For Fridays we notice the noise levels continuing throughout the day and even late in the night! Sundays are again very much devoid of higher levels of noise."
-    elif month == "April":
-        formatted_content = "This is April."
-    elif month == "May":
-        formatted_content = "This is May."
-    elif month == "June":
-        formatted_content = "This is June."
-    elif month == "July":
-        formatted_content = "This is July."
-    elif month == "August":
-        formatted_content = "This is August."
-    elif month == "September":
-        formatted_content = "This is September."
-    elif month == "October":
-       formatted_content = "This is October."
-    elif month == "November":
-        formatted_content = "This is November."
-    elif month == "December":
-        formatted_content = "This is December."
-    else:
-        formatted_content = ""
-        
+        month=month2    
 
     # Update the text, line graph, donut chart, and heatmap based on the selected month
     if button_id == "month-dropdown" or button_id == "month-dropdown2":
@@ -352,6 +321,39 @@ def update_text(month1,month2, yearly_clicks):
             y=heatmap_data.index[::-1],
             colorscale='Viridis'
         ))
+
+        # Extract the maximum value from the heatmap
+        
+        max_heatmap_value = np.nanmax(heatmap_data.values)
+
+     # Content update for every month
+        
+    if month == "January":
+        formatted_content = "In January, the nights are generally very quiet throughout the month. The noisiest time was Thursdays around 13h00. Also, it is noticed that during Fridays, the noise continues more till midnight, unlike the other days of the week. The weekends are generally the most quiet time of the month, with only little noise occuring in the evening."
+    elif month == "February":
+        formatted_content = "In February, the nights are generally quiet throughout the month. The noisiest time of the month was Fridays in the entire month around 08h00. Also, it is noticed that during Thursdays and Fridays the noise tends to continue until midnight, before becoming very silent in the night. The weekends were comparatively more quiet than the other week-days, although some noise were recorded during the evenings of both Saturdays and Sundays."
+    elif month == "March":
+        formatted_content = " In March, there were some high levels of noise that was recorded throughout the day. The early Mondays and late night Sundays were the most quiet time during the day. The noisiest time was Monday mornings around 08h00. The nights are not as quiet as January and February. Late night noise were recorded during Wednesdays, Thursdays and Fridays. The weekends are comparatively more silent than the other days of the week during this month."
+    elif month == "April":
+        formatted_content = "In April, like March some high levels of noise were recorded throughout the entire day. The early Mondays and late night Sundays were the most quiet time during the day. The noisiest time of the month was early morning Tuesdays around 08h00. Noise continued late Thursday nights till early Friday mornings. The weekends are comparatively very quiet than the other days of the week during this month."
+    elif month == "May":
+        formatted_content = "In May, most nights were quiet with some exception. During, late night Wednesdays and early morning Thursdays, some high-levels of noise were recorded. The noisiest time was Tuesdays around 10h00. The weekends were comparatively less noisy than other days of the week, although some noise were recorded during the Saturdays."
+    elif month == "June":
+        formatted_content = "In June, the nights are generally very quiet. The noisiest time of month was Tuesdays around 10h00. It is noticed that during Thursdays, Fridays and Saturdays the noise continues till midnight unlike other days of the week. During the Sundays, the some noise was recorded in the Sunday evenings."
+    elif month == "July":
+        formatted_content = "In July, the nights are generally very silent. The noisiest time of the month was Thursdays around 12h00. It is noticed that during late Friday nights and early Saturday mornings there is a continuation of noise throughout the night."
+    elif month == "August":
+        formatted_content = "In August, like July, the nights are very silent with some exceptions. Some high levels of noise were recorded during the late Friday evenings and early Saturday mornings. The noisiest time of the month was during the Fridays around 11h00. During Saturday evenings some higher form of noise were recorded during the day."
+    elif month == "September":
+        formatted_content = "In September, the nights are very quiet throughout the entire month. The noisiest time of the month was Wednesdays around 08h00. It can be observed that during Thursdays and Fridays some form of noise continues till the midnight, unlike other days of week. The weekends are generally very quiet, although there are some levels of noise during the evening."
+    elif month == "October":
+       formatted_content = "In October, the nights are not as quite as the other months. Higher levels of noise are noticed during the night-times as well. Noise tends to continue throughout the nights. From late Thursday nights to early mornings of Friday the noise continues. The noisiest time of the month is Friday around 08h00. The late Sunday nights and early Monday mornings were the only very quite times of the month."
+    elif month == "November":
+        formatted_content = "In November, like October, less silent nights were observed. High noise-levels were recorded in the late night Thursdays and early morning of Fridays. The Sunday evenings were also quite noisy. The noisiest time of the month was on Mondays around 08h00."
+    elif month == "December":
+        formatted_content = "In December, the nights are generally very quite. The noisiest time of the month was Fridays around 12h00. During the weekdays the noise continues till midnight before it fades away. The weekends are also very quite with the exception of Sunday evening for an hour or two."
+    else:
+        formatted_content = "Throughout the year, it is noticed that the main noise begins during 08h00 of every day and it gradually fades away as the day progresses. The noisiest time of the year was Fridays around 10h00. The weekends were comparatively silent than the other days of the week."
 
         # Find the day with the highest lcpeak and extract relevant information
         day_with_highest_lcpeak = daily_data.loc[daily_data['lcpeak'].idxmax(), 'datetime']
