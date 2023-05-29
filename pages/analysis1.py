@@ -157,46 +157,19 @@ layout = html.Div([
         html.Div(style={"marginBottom": "10px", "display": "flex"}, children=[
             dbc.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-left": "1350px","margin-top": "0px","zIndex": "2"}, outline=False, color="danger", className="me-1"),
         ]), 
-        dcc.Graph(id="line-graph", style={"margin-left": "400px","margin-top": "180px"}),
-
+        dcc.Graph(id="line-graph", style={"margin-left": "400px","margin-top": "120px"}),
+    ]),
+        
+    # Lightgrey lines
+    html.Div(children=[
         # Horizontal line
-        html.Div(
-            style={
-                "position": "absolute",
-                "left": "0",
-                "top": "68px",
-                "width": "100%",
-                "height": "2px",
-                "backgroundColor": "lightgray",
-                "zIndex": "0"
-            }
-        ),
+        html.Div( style={"position": "absolute", "left": "0", "top": "68px", "width": "100%", "height": "2px", "backgroundColor": "lightgray", "zIndex": "0"}),
 
         # Vertical Line 
-        html.Div(
-            style={
-                "position": "absolute",
-                "left": "330px",
-                "top": "68px",
-                "width": "1px",
-                "height": "1400px",
-                "backgroundColor": "lightgray",
-                "zIndex": "0"
-            }
-        ),
+        html.Div(style={"position": "absolute", "left": "330px", "top": "68px", "width": "1px", "height": "1400px", "backgroundColor": "lightgray", "zIndex": "0"}),
 
         # Horizontal line
-        html.Div(
-            style={
-                "position": "absolute",
-                "left": "0",
-                "top": "766px",
-                "width": "100%",
-                "height": "2px",
-                "backgroundColor": "lightgray",
-                "zIndex": "0"
-            }
-        ),
+        html.Div(style={"position": "absolute","left": "0","top": "806px","width": "100%","height": "2px","backgroundColor": "lightgray","zIndex": "0"}),
     ]),
 
     # Second dropdown menu for selecting a month
@@ -341,9 +314,13 @@ def update_text(month1,month2, yearly_clicks):
 
         # Create the line graph
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['laeq'], mode='lines', name='laeq',line=dict(color='red')))
-        fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['lceq'], mode='lines', name='lceq',line=dict(color='#457b9d')))
+        fig.add_trace(go.Scatter(x=daily_data['datetime'],y=daily_data['laeq'],mode='lines',fill='toself',name='laeq',line=dict(color='red')))        
+        fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['lceq'], mode='lines', fill='toself',name='lceq',line=dict(color='#457b9d')))
+        y_constant = [45] * len(daily_data['datetime'])
+        #fig.add_trace(go.Scatter( x=daily_data['datetime'], y=y_constant, mode='lines',fill="toself", name='Fill to y=45', line=dict(color='rgba(0, 0, 0, 0)'),  hoverinfo='none'  ))
         
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmax(), 'datetime']], y=[daily_data.lceq.max()], mode='markers', name='Highest Value', marker=dict(color='green', size=10)))
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmin(), 'datetime']], y=[daily_data.lceq.min()], mode='markers', name='Lowest Value', marker=dict(color='red', size=10)))
         # Get the last day of each month
         monthly_last_days = daily_data.groupby(pd.Grouper(key='datetime', freq='M')).max().reset_index()
 
@@ -398,7 +375,7 @@ def update_text(month1,month2, yearly_clicks):
         plot_bgcolor='rgba(0, 0, 0, 0)',
         paper_bgcolor='rgba(0, 0, 0, 0)',
         width=1100,
-        height=480,
+        height=580,
         xaxis=dict(
             title="Month",
             tickmode='array',
