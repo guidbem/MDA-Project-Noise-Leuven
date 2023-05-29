@@ -283,18 +283,21 @@ def update_text(month1,month2, yearly_clicks):
 
         # Create the line graph
         fig = go.Figure()
+
+        # To use if fill = "tonexty"
+        #y_constant = [45] * len(daily_data['datetime'])
+        #fig.add_trace(go.Scatter( x=daily_data['datetime'], y=y_constant, mode='lines',fill="toself", name='Fill to y=45', line=dict(color='rgba(0, 0, 0, 0)'),  hoverinfo='none'))
+        
         fig.add_trace(go.Scatter(x=daily_data['datetime'],y=daily_data['laeq'],mode='lines',fill='toself',name='laeq',line=dict(color='red')))        
         fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['lceq'], mode='lines', fill='toself',name='lceq',line=dict(color='#457b9d')))
-        y_constant = [45] * len(daily_data['datetime'])
-        #fig.add_trace(go.Scatter( x=daily_data['datetime'], y=y_constant, mode='lines',fill="toself", name='Fill to y=45', line=dict(color='rgba(0, 0, 0, 0)'),  hoverinfo='none'  ))
-        
         fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmax(), 'datetime']], y=[daily_data.lceq.max()], mode='markers', name='Highest Value', marker=dict(color='green', size=10)))
-        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmin(), 'datetime']], y=[daily_data.lceq.min()], mode='markers', name='Lowest Value', marker=dict(color='red', size=10)))
-        # Get the last day of each month
-        monthly_last_days = daily_data.groupby(pd.Grouper(key='datetime', freq='M')).max().reset_index()
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmin(), 'datetime']], y=[daily_data.lceq.min()], mode='markers', name='Lowest Value', marker=dict(color='orange', size=10)))
+        
+        # Get the last day of each month for the x-axis
+        monthly_first_days = daily_data.groupby(pd.Grouper(key='datetime', freq='MS')).first().reset_index()
 
         # Add vertical lines at the end of each month
-        for _, row in monthly_last_days.iterrows():
+        for _, row in monthly_first_days.iterrows():
             line_datetime = row['datetime']
             fig.add_shape(
             type="line",
@@ -303,6 +306,24 @@ def update_text(month1,month2, yearly_clicks):
             x1=line_datetime,
             y1=66,
             line=dict(color="#a8a8a8", width=1, dash="solid"),
+        )
+        
+            # Update layout for the line graph
+        fig.update_layout(
+            title={
+                "text": f"<b>{title_plot}</b>",
+            },
+            plot_bgcolor='rgba(0, 0, 0, 0)',
+            paper_bgcolor='rgba(0, 0, 0, 0)',
+            width=1100,
+            height=580,
+            xaxis=dict(
+            title="Month",
+            tickmode='array',
+            tickvals=monthly_first_days['datetime'].dt.to_pydatetime(),
+            ticktext=monthly_first_days['datetime'].dt.strftime('%b %Y'),
+            tickangle=45
+            ),
         )
 
         # Create the donut chart after calculating the event frequency
@@ -378,16 +399,9 @@ def update_text(month1,month2, yearly_clicks):
         paper_bgcolor='rgba(0, 0, 0, 0)',
         width=1100,
         height=580,
-        xaxis=dict(
-            title="Month",
-            tickmode='array',
-            tickvals=daily_data['datetime'][::30].dt.to_pydatetime(),
-            ticktext=daily_data['datetime'][::30].dt.strftime('%b %Y'),
-            tickangle=45
-        ),
     )
 
-# Update layout for the donut chart
+    # Update layout for the donut chart
     donut_fig.update_layout(
         title='Event Frequency for ' + (month if month is not None else 'Year'),
         height=400,
