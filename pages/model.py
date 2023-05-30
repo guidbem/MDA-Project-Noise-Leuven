@@ -7,6 +7,8 @@ import plotly.express as px
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
 from flask import Flask, send_file
+import io
+from urllib.parse import quote
 
 
 dash.register_page(__name__, path='/model')
@@ -85,32 +87,42 @@ layout = html.Div([
     html.H2('Predictions', style={'margin-top':'50px', 'margin-right':'100px'}),
 
     dcc.Upload(
-        dbc.Button('Upload File', id="upload-button", n_clicks=0, 
-                          style={"margin-right": "25px","margin-top": "0px","zIndex": "0"},outline=False, color="info", className="me-1")),
-
+        id='upload-data',
+        children=dbc.Button('Upload File', id="upload-button", n_clicks=0,
+                            style={"margin-right": "25px", "margin-top": "0px", "zIndex": "0"},
+                            outline=False, color="info", className="me-1")
+    ),
     html.Div(id='output-data-upload'),
     html.Div(id='prediction-results')
 ])
 
 
-# Define the callback function
 @callback(
-    [Output('output-data-upload', 'children'),
-     Output('prediction-results', 'children')],
+    Output('output-data-upload', 'children'),
+    Output('prediction-results', 'children'),
     [Input('upload-data', 'contents')],
     [State('upload-data', 'filename')]
 )
 
+
 def update_output(contents, filename):
     if contents is not None:
-        df_test = pd.read_csv(contents)
+        df_test = pd.read_csv(io.StringIO(contents))
         loaded_model = pickle.load(open('best_model.sav', 'rb'))
         result = loaded_model.predict(df_test)
-        merged_df = pd.concat([df_test, result], axis=1)
-        merged_df.to_csv('merged_data.csv', index=False)
-    
-        # Send the CSV file as a response for download
-        return send_file('merged_data.csv', as_attachment=True, attachment_filename='merged_data.csv')
+        merged_df = pd.concat([df_test, pd.DataFrame(result)], axis=1)
+        csv_string = merged_df.to_csv(index=False)
+        csv_string = "data:text/csv;charset=utf-8," + quote(csv_string, safe='')
+        
+        return html.Div([
+            html.A(
+                dbc.Button('Download Predictions', id="download-button", outline=True, color="info"),
+                href=csv_string,
+                download="merged_data.csv"
+            )
+        ]), None
+
+    return None, None
 
 #def update_output(contents, filename):
 #    if contents is not None:
