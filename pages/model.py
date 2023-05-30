@@ -1,10 +1,12 @@
 import pandas as pd
+import pickle
 import plotly.graph_objects as go
 import dash
 from dash import dash_table
 import plotly.express as px
 from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
+from flask import Flask, send_file
 
 
 dash.register_page(__name__, path='/model')
@@ -98,14 +100,26 @@ layout = html.Div([
     [Input('upload-data', 'contents')],
     [State('upload-data', 'filename')]
 )
+
 def update_output(contents, filename):
     if contents is not None:
-        df = pd.read_csv(contents)
-        # Perform your visualizations or data processing here
-        # Return the result, such as a graph or a table
-        return html.Div([
-            html.H5(f'Uploaded File: {filename}'),
-            html.Hr(),
-            html.Div(df.head())
-        ]), None
-    return html.Div(), None
+        df_test = pd.read_csv(contents)
+        loaded_model = pickle.load(open('best_model.sav', 'rb'))
+        result = loaded_model.predict(df_test)
+        merged_df = pd.concat([df_test, result], axis=1)
+        merged_df.to_csv('merged_data.csv', index=False)
+    
+        # Send the CSV file as a response for download
+        return send_file('merged_data.csv', as_attachment=True, attachment_filename='merged_data.csv')
+
+#def update_output(contents, filename):
+#    if contents is not None:
+#        df = pd.read_csv(contents)
+#        # Perform your visualizations or data processing here
+#        # Return the result, such as a graph or a table
+#        return html.Div([
+#            html.H5(f'Uploaded File: {filename}'),
+#            html.Hr(),
+#            html.Div(df.head())
+#        ]), None
+#    return html.Div(), None
