@@ -38,23 +38,25 @@ FastMarkerCluster(data=locations).add_to(map1)
 card_main = dbc.Card(
     [        dbc.CardBody(
             [
-                html.H2("When is the most quiet moment to take a nap in the Naamsestraat street?", className="card-title",style={"color": "#54B4D3", "paddingTop": "50px", "textAlign": "left","fontSize": "32px"}),
+                html.H2("When is the most quiet moment to take a nap in the Naamsestraat street?", className="card-title",style={"color": "#dc3545", "paddingTop": "50px", "textAlign": "left","fontSize": "32px"}),
                 html.P(
                     "Taking some time off from studying is crucial for students. However, if you reside on Naamsestraat, finding a peaceful moment or being able to take a nap can be challenging due to the street's high level of activity and noise. Are you in search of a solution to identify periods of tranquility during the week? This tool can assist you in pinpointing those moments of calm on Naamsestraat.",
                     className="card-text",
-                     style={
-        "paddingTop": "20px",  # Add spacing at the top
-        "paddingBottom": "50px",  # Add spacing at the bottom
-        "textAlign": "left"
-    }
+                      style={
+                        "paddingTop": "20px",  # Add spacing at the top
+                        "paddingBottom": "50px",  # Add spacing at the bottom
+                        "textAlign": "left",
+                        "margin": "0",
+                        "fontSize": "18px"  # Increase font size
+                    }
                 ),
                
             ]
         ),
     ],
-    color="dark",   
-    inverse=False,   # change color of text (black or white)
-    outline=True,  # True = remove the block colors from the background and header
+    color="light",
+    inverse=False,  # change color of text (black or white)
+      outline=False
 )
 
 button_group = dbc.ButtonGroup(
@@ -87,7 +89,7 @@ card_text = dbc.Card(
         html.H2(
             "The points that seem to be more loud are the ones that are closer to the"
         ),
-        html.H1("Oude Markt", className="card-title",style={"color": "#54B4D3", "paddingTop": "50px", "textAlign": "center","fontSize": "64px"}),
+        html.H1("Oude Markt", className="card-title",style={"color": "#dc3545", "paddingTop": "50px", "textAlign": "center","fontSize": "64px"}),
 
     ])
 )
@@ -96,13 +98,14 @@ card_text = dbc.Card(
 
 card_pic = dbc.Card(
     [
-        dbc.CardImg(src="assets/traffic.jpg",top=True, bottom=False, className="mx-auto", style={'height': '200px','width': '40%'}),
+        dbc.CardImg(src="assets/traffic.jpg",top=True, bottom=False, className="mx-auto", style={'height': '150px','width': '35%'}),
         dbc.CardBody([
             html.H4("Most noise events registered were related to "),
-            html.H1("traffic",className="text-center",style={"color": "#54B4D3"})
+            html.H1("Traffic",className="text-center",style={"color": "#dc3545","fontSize": "58px"})
         ])
         
-    ]
+    ],
+     outline=False
 )
 
 
@@ -110,7 +113,7 @@ card_eff = dbc.Card(
     [
        # dbc.CardImg(src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQavKjlo6x9uDtaE9zs9e0xEL9eFoN7Cgp8hw&usqp=CAU", #class_name="img-fluid img-thumbnail",top=True, bottom=False),
         dbc.CardBody([
-            html.H4("Noise negative effects",style={"color": "#54B4D3"}),
+            html.H4("Noise negative effects",style={"color": "#dc3545"}),
             html.P("1. Sleep disturbances:",className="text-center"),
             html.P("2. Stress and psychological effect",className="text-center"),
             html.P("3. Cardiovascular effects",className="text-center"),
@@ -124,7 +127,7 @@ card_ben = dbc.Card(
     [
        #dbc.CardImg(src="https://encrypted-tbn0.gstatic.com/images?#q=tbn:ANd9GcQDJrxrdoitdYDO644nY4xjj_96Yamjfis9wbCTtXJOgMDQemDHfga8517MyXZAJpSWR2g&usqp=CAU", class_name="img-fluid #img-thumbnail",top=True, bottom=False),
         dbc.CardBody([
-            html.H4("Benefits of napping",style={"color": "#54B4D3"}),
+            html.H4("Benefits of napping",style={"color": "#dc3545"}),
             html.P("1. Increased alertness and productivity",className="text-center"),
             html.P("2. Enhanced mood and relaxation",className="text-center"),
             html.P("3. Memory and learning improvement",className="text-center"),
@@ -138,7 +141,7 @@ card_pro = dbc.Card(
     [
        #dbc.CardImg(src="https://encrypted-tbn0.gstatic.com/images?#q=tbn:ANd9GcQDJrxrdoitdYDO644nY4xjj_96Yamjfis9wbCTtXJOgMDQemDHfga8517MyXZAJpSWR2g&usqp=CAU", class_name="img-fluid #img-thumbnail",top=True, bottom=False),
         dbc.CardBody([
-            html.H4("Noise in Leuven",style={"color": "#54B4D3"}),
+            html.H4("Noise in Leuven",style={"color": "#dc3545"}),
             html.P("Monday is the quietest day",className="text-center"),
             html.P("Warm weather increases noise in Naamsestraat",className="text-center"),
             html.P("July is a quiet month",className="text-center"),
@@ -148,14 +151,7 @@ card_pro = dbc.Card(
     ]
 )
 
-
-
-
-
-layout = html.Div([
-    dbc.Row([
-        dbc.Col([
-            dbc.Card(
+card_leuv= dbc.Card(
                 [
                     dbc.CardBody(
                         [
@@ -163,7 +159,7 @@ layout = html.Div([
                                 "Noise in Leuven",
                                 className='text-sm-left',
                                 style={
-                                    "color": "#54B4D3",  # Change to a contrasting color
+                                    "color": "#dc3545",  # Change to a contrasting color
                                     "fontWeight": "bold",
                                     "fontSize": "72px",  # Increase font size
                                     "opacity": 1.0  # Increase opacity
@@ -189,7 +185,7 @@ layout = html.Div([
                         style={"paddingTop": "250px", "textAlign": "left"}
                     ),
                     dbc.CardImg(
-                        src="https://studyabroad.nd.edu/assets/441023/800x333/leuven.jpg",
+                        src="assets/leuven.jpg",
                         bottom=True,
                         class_name="card-img-overlay h-100 d-flex flex-column justify-content-end",
                         style={"webkitMaskImage": "linear-gradient(to top, transparent 30%, black 100%)",
@@ -198,62 +194,35 @@ layout = html.Div([
                     ),
                 ]
             )
-        ], width={'size': 12, 'offset': 0})
-    ], align="center"),
 
+
+
+layout = html.Div([
    
-    dbc.Row([
-           dbc.Col([
-            dbc.Card(
-                [
-                   dbc.CardBody([
-            html.H1(" "),
-            html.H1(" "),
-            html.H1(" "),
-            html.H1(" "),
-            html.H1(" "),
-            html.H2("")
-        ])
-                ],
-                
-            )
-        ], width={'size':12, 'offset':0},
-           
-        )
-    ], align="center"),  # Vertical: start, center, end
+   
+dbc.Row(dbc.Col(card_leuv, width=12), className="my-4"),
+
+dbc.Row(
+    [
+        dbc.Col(card_main, width=8),
+        dbc.Col(card_question, width=2),
+        dbc.Col(card_pic, width=2),
+    ],
+    className="my-4",
+    justify="center",
+),
 
 
-    dbc.Row([dbc.Col(card_main, width=6),
-             dbc.Col(card_question, width=2),
-             dbc.Col(card_pic, width=4)], justify="center"),  # justify="start", "center", "end", "between", "around"
-  dbc.Row([
-           dbc.Col([
-            dbc.Card(
-                [
-                   dbc.CardBody([
-            html.H1(" "),
-            html.H1(" "),
-            html.H1(" "),
-            html.H1(" "),
-            html.H1(" "),
-            html.H2("") 
-        ])
-                ],
-                
-            )
-        ], width={'size':12, 'offset':0},
-           
-        )
-    ], align="center"),  # Vertical: start, center, end
                dbc.Row(
         dbc.Col(html.H1("Registered Noise events on Naamsestraat",
                         className='text-sm-left',
                                 style={
-                                    "color": "#54B4D3",  # Change to a contrasting color
+                                    "color": "#dc3545",  # Change to a contrasting color
                                     "fontWeight": "bold",
                                     "fontSize": "48px",  # Increase font size
                                     "opacity": 1.0  # Increase opacity
-                                })
+                                }
+                                )
     ),
                ),
                
@@ -272,32 +241,14 @@ layout = html.Div([
         style={"paddingTop": "50px", "textAlign": "center"},
     )
     
-    ], align="center"),  # Vertical: start, center, end
-        dbc.Row([
-           dbc.Col([
-            dbc.Card(
-                [
-                   dbc.CardBody([
-            html.H1(" "),
-            html.H1(" "),
-            html.H1(" "),
-             html.H1(" "),
-              html.H1(" "),
-            html.H2("")
-        ])
-                ],
-                
-            )
-        ], width={'size':12, 'offset':0},
-           
-        )
-    ], align="center"),  # Vertical: start, center, end
+    ], align="center",className="my-5",),  # Vertical: start, center, end
+ 
   
                
             dbc.Row([dbc.Col
                      (dbc.CardGroup([card_eff,card_ben, card_pro]))])
     
-])
+],className="my-4",)
      
 
 
