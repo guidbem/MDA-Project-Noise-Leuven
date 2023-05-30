@@ -18,3 +18,7 @@
 .link:hover {
     color: red; /* Change to your desired hover color */
 }
+
+.link.active {
+    color: red; /* Change to your desired active color */
+}
