@@ -8,68 +8,148 @@ import dash_bootstrap_components as dbc
 
 dash.register_page(__name__, path='/analysis-2')
 
+
+box_style_granger = {
+    'height': '250px',
+    'width': '300px',
+    'background-color': 'olive',
+    'padding': '10px',
+    'border-radius': '5px',
+    'margin-bottom': '10px',
+    'position': 'absolute',
+    'top': '150px',
+    'left': '15px',
+    'clip-path': 'polygon(0 0, 100% 0%, 100% 92%, 85% 100%, 0% 100%)',
+    '-webkit-clip-path': 'polygon(0 0, 100% 0%, 100% 92%, 85% 100%, 0% 100%)',
+    'font-family':'Tiffany'
+}
+
+box_style_pca_findings = {
+    'height':'250px',
+    'width':'650px',
+    'background-color': 'mediumturquoise',
+    'padding': '10px',
+    'border-radius': '5px',
+    'margin-bottom': '10px',
+    'position': 'absolute',
+    'top': '500px',
+    'left': '15px'
+}
+
+box_style_stationary = {
+    'height':'250px',
+    'width':'1000px',
+    'background-color': 'orangered',
+    'padding': '10px',
+    'border-radius': '5px',
+    'margin-bottom': '10px',
+    'position': 'absolute',
+    'top': '800px',
+    'left': '15px'
+}
+
+box_style_stationary_findings = {
+    'height':'450px',
+    'background-color': 'mediumturquoise',
+    'padding': '10px',
+    'border-radius': '5px',
+    'margin-bottom': '10px',
+    'position': 'absolute',
+    'top': '1500px',
+    'left': '15px'
+}
+
 layout = html.Div([
-    html.H1('Analysis 2: Can meteo data be used to predict noise levels?'),
-    html.Div(
-    children=[
-        html.P("In order to see whether the meteo data can be used to predict noise levels or not, we can perform granger causality test. Granger causality is an econometric test used to verify the usefulness of one variable to forecast another."
-               "We have the crowdsourced data of the year 2022 from 100 low-cost weather stations in Leuven, which contains observations of 13 weather-related variables with a sampling period of 10 minutes. "
-               "Principal Component Analysis (PCA) is a dimensionality reduction technique that can be applied to the weather data to extract meaningful features and reduce the dimensionality of our dataset."
-               " PCA can help us visualize high-dimensional weather data in a lower-dimensional space. By projecting the data onto a smaller number of principal components, we can then use those components for the granger causality test instead of testing for all the variables separately."
-               "So we conduct PCA on the meteo data, and extract the first two principal components that contribute the most to the overall variance in the data."
-               "The following is the biplot where each variable is represented as a vector. The position and orientation of the vectors indicate the contribution of each variable to the principal components"),
-        
-        
+        html.H1('Can meteo data be used to predict noise levels?'),
 
-    ]),
-    
-    html.Div(html.Img(src="assets/Meteo_PCA.png", style={'display': 'block', 'margin': 'auto'})),
-    html.Div(
-    children=[
-        html.P("The plot indicates that the variables related to temperature and radiation are explained by the first principal component"
-               "Whereas, the variables related to raining, wind speed and direction are better explained by the second component."
-                "The variable Humidity is contributing to both the principal components."),
-        
-        
+    # Granger Definition
 
-    ]),
-    html.Div(
-    children=[
-        html.P("we plot the components to check whether they are stationary: "
-               "The time-series does not look stationary, thus we do differencing. Differencing can help achieve stationarity by removing trends and making the series more stable over time."
-               "By subtracting the previous observation from the current observation, the resulting differenced series represents the change or deviation from the previous value. This helps in focusing on the fluctuations or irregularities in the data."
-               "We can also expect some seasonality as the first component is explained by the variables such as temperature, which follow a daily trend, as one can expect the temperature in the morning to be correlated to the temperature of previous morning."
-               "Therefore we difference the series at 144 lags, in order to remove the daily trend"),
-        
-        
+        html.Div(
+            children= [
+                html.H3("Granger Causality", style={'font-weight': 'bold'}),
+                html.P(" The Granger causality test is a statistical hypothesis test for determining whether one time series is useful in forecasting another, first proposed in 1969. Granger causality is an econometric test used to verify the usefulness of one variable to forecast another."),
+            ], style= box_style_granger 
+        ),
 
-    ]),
-    html.Div(
-    children=[
-        html.P("Since noise levels data was available in seconds, we transformed it to match the sampling period of meteo data by taking the mean over 10 minutes of the values of 'laeq' and 'lceq' whereas maximum values of 'lamax' and 'lcpeak'."
-               "To check for the requirement of stationarity, we plot the ACF (Autocorrelation Function) plot which is a graphical tool used in time series analysis to visualize the correlation between a time series and its lagged values. "
-               "A time series can be assumed to be stationary if there are no significant autocorrelations between observations at different time points."
-               "We can clearly see high autocorrelations, and some seasonality in the left plot, we therefore compute the differences between consecutive observations to remove trends, seasonality, or other non-stationary components present in the data"
-               "The middle plot represents the acf plot after differencing, we can still see some small peaks at every (approx 144 lags) few lags, thus implying some seasonality around lag 144, which is due to the daily pattern which is repeated every 24 hrs. So we do differencing again with 144 lags in order to eliminate the seasonal pattern."
-               "We obtain the figure in the right as the acf plot after differencing twice, which seems to be stationary. We also performed ADFuller test to verify the stationary."),
-        
-        
+# PCA plot
+        html.Div(
+            children=[
+                html.Img(
+                    src="assets/Meteo_PCA.png",
+                    style={
+                        'display': 'block',
+                        'height': '500px',
+                        'width': '600px',
+                        'padding': '10px',
+                        'border-radius': '5px',
+                        'margin-bottom': '10px',
+                        'position': 'absolute',
+                        'top': '150px',
+                        'right': '15px',
+                        'background-color': 'purple'
+                    }
+                )
+            ]
+        ),
 
-    ]),
+
+
+    # PCA Findings text
+
+        html.Div(
+            children=[
+                html.H3("Findings"),
+                html.Ul(
+                    children=[
+                        html.Li("The variables related to temperature and radiation are highly influencing the first principal component, as their projection on PC1 is high."),
+                        html.Li("The variables related to raining and wind have higher projections on PC2, thereby having a higher contribution in explaining the variance of PC2."),
+                        html.Li("Humidity has high projections on both PC1 and PC2, thus it is affecting both the components."),
+                        html.Li("The length of the vector of windspeed is very short, which means its variance is not being explained by either of the principal components.")
+                    ]
+                )
+            ],
+            style=box_style_pca_findings
+        ),
+
+
+    # Stationary time series defintion
+
+        html.Div(
+        children=[
+            html.H3("Stationary Time Series", style={"text-align": "center"}),
+            html.P("A stationary time series is one whose properties do not depend on the time at which the series is observed. Thus, time series with trends, or with seasonality, are not stationary — the trend and seasonality will affect the value of the time series at different times. On the other hand, a white noise series is stationary — it does not matter when you observe it, it should look much the same at any point in time. Some cases can be confusing — a time series with cyclic behaviour (but with no trend or seasonality) is stationary. This is because the cycles are not of a fixed length, so before we observe the series we cannot be sure where the peaks and troughs of the cycles will be. In general, a stationary time series will have no predictable patterns in the long-term. Time plots will show the series to be roughly horizontal (although some cyclic behaviour is possible), with constant variance."),
+        ], style=box_style_stationary
+        ),
+
+    # ACF Plots
+
     html.Div([
-        html.Img(src="assets/acf_minutes_noise.png", style={'width': '33%'}),
-        html.Img(src="assets/diff1_laeq.png", style={'width': '33%'}),
-                html.Img(src="assets/diff1_144.png", style={'width': '33%'}),
-    ], style={'display': 'flex'}),
-    html.Div(
-    children=[
-        html.P("Now that the assumption of stationarity is accomplished, we can use the differenced time series to test whether the meteo data has an explanatory power in predicting the noise levels."
-               "We perform the granger causality test of both the principal components on 'laeq' and 'lceq', and find the following results:"),
-    ]),
-    html.Div(
-    children=[
-        html.P("We can see that all the p-values are above 0.05, thus we do not reject the null hypothesis of no granger causality. Therefore meteo data do not have a significant explanatory power in predicting laeq or lceq."
-               "Even though there exist a correlation between the components and the noise levels, we did not find any granger causality, it implies that the correlation could be because of the time. To explain it in a better way"
-               ", the temperature during the night and early morning are usually lower than the day-time, similarly the noise level is expected to be higher during day-time, which might cause both the time series to have a similar trend but it wont imply one of them is causing other, or vice-versa."),
+            html.Img(src="assets/acf_minutes_noise.png", style={'width': '33%'}),
+            html.Img(src="assets/diff1_laeq.png", style={'width': '33%'}),
+                    html.Img(src="assets/diff1_144.png", style={'width': '33%'}),
+        ], style={'display': 'flex',
+        'width':'1000px', 'padding': '10px', 'border-radius': '5px', 'margin-bottom': '10px', 'position': 'absolute', 'top': '1100px', 'left': '15px'}),
+
+
+    # Findings From the Stationary
+        html.Div(
+        children=[
+            html.H3("Findings"),
+            html.Ul(
+            children=[
+                html.H3("Findings"),
+                html.Ul(
+                    children=[
+                        html.Li("The autocorrelation plots of the noise levels data shows high correlations at almost all lags, and do not seem to converge to zero, thereby implying non-stationarity."),
+                        html.Li("We can also notice some seasonality as the pattern in the acf plots repeats after every few lags."),
+                        html.Li("The autocorrelations are reduced to a large extent."),
+                        html.Li("We can still notice some small peaks (approx thrice in every 500 lags), these peaks could be because of the daily pattern in noise levels(6(1hr=6 lags)*24(hrs in a day)=144 lags)."),
+                        html.Li("The time series appears stationary now."),
+                        html.Li("Our observation was seconded by the results of ADF test, as the p-value is 0 for the double-differenced series, implying stationarity.")
+                    ]
+                )
+            ],                
+                style=box_style_stationary_findings
+        )
     ])
 ])
