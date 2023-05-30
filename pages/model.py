@@ -9,6 +9,22 @@ import dash_bootstrap_components as dbc
 from flask import Flask, send_file
 import io
 from urllib.parse import quote
+import base64
+
+from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.model_selection import train_test_split, KFold, cross_val_score, StratifiedKFold, GridSearchCV, RandomizedSearchCV
+from lightgbm import LGBMClassifier
+from sklearn.preprocessing import FunctionTransformer
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score, classification_report, balanced_accuracy_score
+#import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from pprint import pprint
+from skopt import BayesSearchCV
+from skopt.space import Real, Integer
+from utils.model_datatransforms import *
+
 
 
 dash.register_page(__name__, path='/model')
@@ -25,6 +41,13 @@ classification_report_df = pd.DataFrame(classification_report_data)
 
 fig = '/assets/confusion_matrix.png'
 balanced_accuracy = 77.2
+
+label = {
+    'Number': [0, 1, 2, 3, 4],
+    'String': ['Human voice - Shouting', 'Human voice - Singing', 'Other', 'Transport road - Passenger car', 'Transport road - Siren']
+}
+df_label = pd.DataFrame(label)
+
 
 # Define the layout
 layout = html.Div([
@@ -87,8 +110,8 @@ layout = html.Div([
     html.H2('Predictions', style={'margin-top':'50px', 'margin-right':'100px'}),
 
     dcc.Upload(
-        id='upload-data',
-        children=dbc.Button('Upload File', id="upload-button", n_clicks=0,
+        id="upload-button",
+        children=dbc.Button('Upload File',  n_clicks=0,
                             style={"margin-right": "25px", "margin-top": "0px", "zIndex": "0"},
                             outline=False, color="info", className="me-1")
     ),
@@ -99,39 +122,51 @@ layout = html.Div([
 
 @callback(
     Output('output-data-upload', 'children'),
-    Output('prediction-results', 'children'),
-    [Input('upload-data', 'contents')],
-    [State('upload-data', 'filename')]
+    #Output('prediction-results', 'children'),
+    [Input('upload-button', 'contents')]
+    #[State('upload-button', 'filename')]
 )
 
 
-def update_output(contents, filename):
+def update_output(contents):
+    content_type, content_string = contents.split(',')
+
+    decoded = base64.b64decode(content_string)
+
     if contents is not None:
-        df_test = pd.read_csv(io.StringIO(contents))
-        loaded_model = pickle.load(open('best_model.sav', 'rb'))
-        result = loaded_model.predict(df_test)
-        merged_df = pd.concat([df_test, pd.DataFrame(result)], axis=1)
-        csv_string = merged_df.to_csv(index=False)
-        csv_string = "data:text/csv;charset=utf-8," + quote(csv_string, safe='')
-        
-        return html.Div([
-            html.A(
-                dbc.Button('Download Predictions', id="download-button", outline=True, color="info"),
-                href=csv_string,
-                download="merged_data.csv"
-            )
-        ]), None
+        try:
+            df_test = pd.read_csv(
+                io.StringIO(decoded.decode('utf-8')))
+            #print(df_test.head())
+            loaded_model = pickle.load(open('best_model.pkl', 'rb'))
+            pred = loaded_model.predict(df_test)
+            #pred = pd.DataFrame(pred)
+            df_label['label'] = " "
+            for index, row in df_label.iterrows():
+                number = row['Number']
+                string = row['String']
+                df_label.loc[df_label['Number'] == number, 'label'] = string
 
-    return None, None
+            df_assigned = pd.DataFrame({'Number': pred})
+            df_assigned = pd.merge(df_assigned, df_label, on='Number', how='left')
+            # Print the result
+            result = df_assigned.drop(columns=['Number', 'String'])
+            #result = LabelEncoder().inverse_transform(result)
+            merged_df = pd.concat([df_test, result], axis=1)
+            csv_string = merged_df.to_csv(index=False)
+            csv_string = "data:text/csv;charset=utf-8," + quote(csv_string, safe='')
 
-#def update_output(contents, filename):
-#    if contents is not None:
-#        df = pd.read_csv(contents)
-#        # Perform your visualizations or data processing here
-#        # Return the result, such as a graph or a table
-#        return html.Div([
-#            html.H5(f'Uploaded File: {filename}'),
-#            html.Hr(),
-#            html.Div(df.head())
-#        ]), None
-#    return html.Div(), None
+            return html.Div([
+                html.A(
+                    dbc.Button('Download Predictions', id="download-button", outline=True, color="info"),
+                    href=csv_string,
+                    download="merged_data.csv"
+                )
+            ])
+
+        except KeyError as e:
+            error_message = f"KeyError: '{e.args[0]}' column not found in the uploaded file."
+            return html.Div([
+                html.P(error_message, style={'color': 'red'})
+            ])
+    return html.Div(['Error uploading'])
