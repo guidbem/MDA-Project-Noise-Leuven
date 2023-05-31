@@ -10,47 +10,49 @@ nav_bar = html.Nav(
             "Overview",
             href="/",
             className="link",
-            style={"margin-right": "20px"},
             id="overview-link",
         ),
         dcc.Link(
-            "Analysis 1",
+            "Visual Analysis",
             href="/analysis-1",
             className="link",
-            style={"margin-right": "20px"},
+            style={"margin-left": "15px"},
             id="analysis-1-link",
         ),
         dcc.Link(
-            "Analysis 2",
+            "Time Series",
             href="/analysis-2",
             className="link",
-            style={"margin-right": "20px"},
             id="analysis-2-link",
+            style={"margin-left": "35px"},
+
         ),
         dcc.Link(
             "Model",
             href="/model",
             className="link",
-            style={"margin-right": "0px"},
             id="model-link",
+            style={"margin-left": "20px"},
+
         ),
         dcc.Link(
             "About Us",
             href="/about_us",
             className="link",
             id="about-us-link",
+            style={"margin-right": "0px"},
         ),
     ],
     style={
-        "background-color": "white",  # change color accodingly
+        "background-color": "white",
         "height": "70px",
         "display": "flex",
         "align-items": "center",
-        "margin-left": "500px",  
-        "margin-right": "500px",  
         "justify-content": "space-between",
-        "background-repeat": "no-repeat",
-        "background-size": "cover",
+        "padding": "0 5vw",  # Add padding to increase horizontal stretch
+        "width": "55%",  # Set the width to 100% to stretch horizontally
+        "max-width": "1200px",  # Set a maximum width to limit the stretching
+        "margin": "0 auto",  # Center the nav bar horizontally
     },
 )
 
