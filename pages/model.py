@@ -62,14 +62,20 @@ layout = html.Div([
 
     dbc.Row([
         dbc.Col([
-            html.H3('Classification Report', style={'margin-left':'50px'}),
+            html.H3('Classification Report', style={'margin-left':'50px', 'margin-top':'10px'}),
             dbc.Table(
                 id='classification-report-table',
                 bordered=True,
                 striped=True,
                 hover=True,
                 responsive=True,
-                style={'margin-left':'50px','width': '690px'},
+                style={'margin-left':'50px',
+                       'width': '690px',
+                       'margin-top':'10px',
+                       'font-size': '14px',
+                        'text-align': 'center',
+                        'border-collapse': 'collapse',
+                        'border-spacing': '0'},
                 children=[
                     html.Thead([
                         html.Tr([
@@ -79,7 +85,10 @@ layout = html.Div([
                             html.Th('F1-Score'),
                             html.Th('Support')
                         ])
-                    ]),
+                    ], style={
+                    'background-color': 'rgba(0, 0, 0, 0.1)',
+                    'font-weight': 'bold',
+                    }),
                     html.Tbody([
                         html.Tr([
                             html.Td(classification_report_df.iloc[i]['Class']),
@@ -87,7 +96,10 @@ layout = html.Div([
                             html.Td(classification_report_df.iloc[i]['Recall']),
                             html.Td(classification_report_df.iloc[i]['F1-Score']),
                             html.Td(classification_report_df.iloc[i]['Support'])
-                        ]) for i in range(len(classification_report_df))
+                        ],
+                        style={
+                        'background-color': 'rgba(255, 255, 255, 1)' if i % 2 == 0 else 'rgba(0, 0, 0, 0.05)'}
+                    ) for i in range(len(classification_report_df))
                     ])
                 ]
             ),
@@ -97,43 +109,65 @@ layout = html.Div([
                         html.H5("Balanced accuracy", className="card-title"),
                         html.H3(f"{balanced_accuracy:.2f} %", className="card-text"),
                     ])
-                ], className="mb-4", style={'backgroundColor': 'rgba(176, 224, 230, 0.7)', "margin": "auto", "maxWidth": "fit-content", "padding": "10px"})
+                ], className="mb-4", style={'backgroundColor':'rgba(255, 0, 0, 0.4)', "margin": "auto", "maxWidth": "fit-content", "padding": "10px"})
             ]),
         ], width=6), 
         dbc.Col([
-        html.H3('Confusion Matrix', style={'margin-left':'70px'}),
-        html.Img(src=fig, style={'width': '600px', 'margin-left':'70px', 'border': '1px solid black'})
+        html.H3('Confusion Matrix', style={'margin-left':'70px', 'margin-top':'10px'}),
+        html.Img(src=fig, style={'width': '600px', 'margin-left':'70px', 'border': '1px solid black', 'margin-top':'10px'})
         ], width=6)
-    ]),
+    ], style={'background-color': '#F5F5F5'}),
 
-# For the new upload
-    html.H2('Predictions', style={'margin-top':'50px', 'margin-right':'100px'}),
+    html.Div(children=[
+        # Horizontal line
+        html.Div( style={"position": "absolute", "left": "0", "top": "68px", "width": "100%", "height": "2px", "backgroundColor": "lightgray", "zIndex": "0"}),
+       ]),
 
-    dcc.Upload(
-        id="upload-button",
-        children=dbc.Button('Upload File',  n_clicks=0,
-                            style={"margin-right": "25px", "margin-top": "0px", "zIndex": "0"},
-                            outline=False, color="info", className="me-1")
-    ),
-    html.Div(id='output-data-upload'),
-    html.Div(id='prediction-results')
+    # For the new upload
+    html.H2('Predictions', style={'margin-top':'50px', 'margin-left':'20px'}),
+
+    html.P('Please insert a .csv file to add the labels', style={'margin-left':'20px'}),
+
+    html.Div([
+        html.Div([
+            dcc.Upload(
+                id="upload-data",
+                children=html.Div([
+                    'Drag and Drop or ',
+                    html.A('Select Files')
+                ]),
+                style={
+                    'width': '300px',
+                    'height': '60px',
+                    'lineHeight': '60px',
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '5px',
+                    'textAlign': 'center',
+                    'margin-left': '20px',
+                    'display': 'inline-block'
+                },
+                multiple=False
+            ),
+        ], style={'display': 'inline-block'}),
+        html.Div(id='output-data-upload', style={'display': 'inline-block', 'vertical-align': 'top', 'margin-top': '45px'}),
+    ])
 ])
 
 
 @callback(
     Output('output-data-upload', 'children'),
-    #Output('prediction-results', 'children'),
-    [Input('upload-button', 'contents')]
-    #[State('upload-button', 'filename')]
+    [Input('upload-data', 'contents')]
 )
 
 
 def update_output(contents):
-    content_type, content_string = contents.split(',')
-
-    decoded = base64.b64decode(content_string)
 
     if contents is not None:
+        content_type, content_string = contents.split(',')
+        
+        decoded = base64.b64decode(content_string)
+
         try:
             df_test = pd.read_csv(
                 io.StringIO(decoded.decode('utf-8')))
@@ -158,7 +192,7 @@ def update_output(contents):
 
             return html.Div([
                 html.A(
-                    dbc.Button('Download Predictions', id="download-button", outline=True, color="info"),
+                    dbc.Button('Download Predictions', id="download-button", outline=True, color="danger"),
                     href=csv_string,
                     download="merged_data.csv"
                 )
@@ -169,4 +203,4 @@ def update_output(contents):
             return html.Div([
                 html.P(error_message, style={'color': 'red'})
             ])
-    return html.Div(['Error uploading'])
+    return None
