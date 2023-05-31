@@ -9,10 +9,12 @@ import pandas as pd
 
 dash.register_page(__name__, path='/')
 
+
+###Construct a map to show where the noise events where registered in the Naamsestraat
 # Load the data
 df = pd.read_csv('doughnut_data.csv')
 
-# Latitude and longitude
+# Make a dictionary with Latitude and longitude
 locations = {
     '#object_id': [255439, 255444, 255442, 255443, 255441, 255440, 280324],
     'latitude': [50.87723694791674, 50.87394683548034, 50.87452221086784, 50.874206694437916,
@@ -21,19 +23,25 @@ locations = {
                   4.700245812259932, 4.7006594527440955, 4.70085691226008]
 }
 
+# Convert to dataframe
 locations_df = pd.DataFrame(locations)
 
-# Merge
+# Merge to add latitude and longitude to original dataset
 df = pd.merge(df, locations_df, on='#object_id', how='left')
 
-# Create map
+# Make list with latitude and longitude
 lats = df['latitude'].tolist()
 lons = df['longitude'].tolist()
+#Make a locations list containing tuples representing the coordinates on the map.
 locations = list(zip(lats, lons))
 
+#Create folium map
 map1 = folium.Map(location=[50.878814448410864, 4.70085691226008], zoom_start=25.5)
 FastMarkerCluster(data=locations).add_to(map1)
 
+
+
+###Create multiple cards with information and specific layouts
 
 card_main = dbc.Card(
     [        dbc.CardBody(
@@ -58,6 +66,7 @@ card_main = dbc.Card(
       outline=False
 )
 
+###Create button group
 button_group = dbc.ButtonGroup(
     [
         dbc.Button("A.  March", id="button-march", style={"width": "200px"}),
@@ -105,20 +114,20 @@ card_pic = dbc.Card(
 card_eff = dbc.Card(
     [
         dbc.CardBody([
-            html.H4("Noise negative effects",style={"color": "#dc3545", "paddingTop": "20px", "textAlign": "center","fontSize": "18px"}),
+            html.H4("Noise negative effects",style={"color": "#dc3545", "paddingTop": "20px", "fontWeight": "bold","textAlign": "center","fontSize": "28px"}),
             html.P("1. Sleep disturbances:",className="text-center"),
             html.P("2. Stress and psychological effect",className="text-center"),
             html.P("3. Cardiovascular effects",className="text-center"),
             html.P("4. Impaired cognitive performance",className="text-center"),
              ],
             className="card-body",
-            style={
-                "background-image": "url('assets/notebook2.png')",
-                "background-size": '40%',
-                'background-width': '120%',
+        style={
+                "background-image": "url('assets/note.jpg')",
+                "background-size": "70%",
                 "background-position": "center",
                 "background-repeat": "no-repeat",
-                "padding": "30px",
+                "background-color": "rgba(255, 255, 255, 0.001)",  # Adjust the alpha value (0.5 for 50% opacity)
+                "padding": "20px",
                 "fontSize": "14px",
             },
         ),
@@ -130,19 +139,19 @@ card_eff = dbc.Card(
 card_ben = dbc.Card(
     [
         dbc.CardBody([
-            html.H4("Benefits of napping",style={"color": "#dc3545", "paddingTop": "20px", "textAlign": "center","fontSize": "18px"}),
+            html.H4("Benefits of napping",style={"color": "#dc3545", "paddingTop": "20px", "fontWeight": "bold","textAlign": "center","fontSize": "28px"}),
             html.P("1. Increased alertness and productivity",className="text-center"),
             html.P("2. Enhanced mood and relaxation",className="text-center"),
             html.P("3. Memory and learning improvement",className="text-center"),
             html.P("4. Stress reduction and health benefits",className="text-center"),
              ],
             className="card-body",
-            style={
-                "background-image": "url('assets/notebook2.png')",
-                "background-size": '40%',
-                'background-width': '120%',
+     style={
+                "background-image": "url('assets/note.jpg')",
+                "background-size": "70%",
                 "background-position": "center",
                 "background-repeat": "no-repeat",
+                "background-color": "rgba(255, 255, 255, 0.001)",  # Adjust the alpha value (0.5 for 50% opacity)
                 "padding": "20px",
                 "fontSize": "14px",
             },
@@ -150,22 +159,24 @@ card_ben = dbc.Card(
     ],
     className="card",
 )
+
 card_pro = dbc.Card(
-   [dbc.CardBody(
     [
-        html.H4("Noise in Leuven", style={"color": "#dc3545", "paddingTop": "20px", "textAlign": "center", "fontSize": "18px"}),
-        html.P("Weekends seem to be more quiet than weekdays", className="text-center"),
-        html.P("Weather seems to have an effect on noise levels", className="text-center"),
-        html.P("July is a quiet month", className="text-center"),
-        html.P("Places far from the oude markt are calmer", className="text-center"),
-          ],
+        dbc.CardBody(
+            [
+                html.H4("Noise in Leuven", style={"color": "#dc3545", "paddingTop": "20px", "fontWeight": "bold","textAlign": "center", "fontSize": "28px"}),
+                html.P("Weekends are more quiet", className="text-center"),
+                html.P("Weather seems to have an effect", className="text-center"),
+                html.P("October is a loud month", className="text-center"),
+                html.P("Places far from the oude markt are calmer", className="text-center"),
+            ],
             className="card-body",
             style={
-                "background-image": "url('assets/notebook2.png')",
-                "background-size": '40%',
-                'background-width': '120%',
+                "background-image": "url('assets/note.jpg')",
+                "background-size": "70%",
                 "background-position": "center",
                 "background-repeat": "no-repeat",
+                "background-color": "rgba(255, 255, 255, 0.001)",  # Adjust the alpha value (0.5 for 50% opacity)
                 "padding": "20px",
                 "fontSize": "14px",
             },
@@ -179,7 +190,7 @@ card_leuv= dbc.Card(
                     dbc.CardBody(
                         [
                             html.H1(
-                                "",
+                                "Noise in Leuven",
                                 className='text-sm-left',
                                 style={
                                     "color": "#dc3545",  # Change to a contrasting color
@@ -220,6 +231,8 @@ card_leuv= dbc.Card(
 
 
 
+### Create the specific layout as it will be shown in the page
+
 layout = html.Div([
     html.Div(children=[
            # Horizontal line
@@ -227,18 +240,7 @@ layout = html.Div([
 
     ]),
 
-   dbc.Row(
-        dbc.Col(html.H1("Noise in Leuven",
-                        className='text-sm-left',
-                                style={
-                                    "color": "#dc3545",  # Change to a contrasting color
-                                    "fontWeight": "bold",
-                                    "fontSize": "48px",  # Increase font size
-                                    "opacity": 1.0  # Increase opacity
-                                }
-                                )
-    ),
-               ),
+
 
 dbc.Row(dbc.Col(card_leuv, width=12, style={"marginTop": "5px"})),
 
@@ -291,7 +293,7 @@ dbc.Row(
 ],className="my-4")
      
 
-
+###callback function  to update the colors of the buttons based on the button that was clicked. 
 @callback(
     Output("button-march", "color"),
     Output("button-july", "color"),
