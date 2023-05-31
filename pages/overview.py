@@ -73,13 +73,7 @@ card_question = dbc.Card(
         dbc.CardBody([
             html.H2("Which is the loudest month at Naamsestraat?", className="card-title"),
             button_group,
-            #dbc.ListGroup(
-            #    [
-            #        dbc.ListGroupItem("A. March"),
-            #        dbc.ListGroupItem("B. July"),
-            #        dbc.ListGroupItem("C. August"),
-            #    ], flush=True)
-        ]),
+                  ]),
     ], color="lightblue",
 )
 
@@ -185,7 +179,7 @@ card_leuv= dbc.Card(
                     dbc.CardBody(
                         [
                             html.H1(
-                                "Noise in Leuven",
+                                "",
                                 className='text-sm-left',
                                 style={
                                     "color": "#dc3545",  # Change to a contrasting color
@@ -227,8 +221,25 @@ card_leuv= dbc.Card(
 
 
 layout = html.Div([
-   
-   
+    html.Div(children=[
+           # Horizontal line
+        html.Div( style={"position": "absolute", "left": "0", "top": "68px", "width": "100%", "height": "2px", "backgroundColor": "lightgray", "zIndex": "0"}),
+
+    ]),
+
+   dbc.Row(
+        dbc.Col(html.H1("Noise in Leuven",
+                        className='text-sm-left',
+                                style={
+                                    "color": "#dc3545",  # Change to a contrasting color
+                                    "fontWeight": "bold",
+                                    "fontSize": "48px",  # Increase font size
+                                    "opacity": 1.0  # Increase opacity
+                                }
+                                )
+    ),
+               ),
+
 dbc.Row(dbc.Col(card_leuv, width=12, style={"marginTop": "5px"})),
 
 dbc.Row(
