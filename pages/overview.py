@@ -303,9 +303,9 @@ dbc.Row(
 def update_button_colors(n_clicks_march, n_clicks_july, n_clicks_august):
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
     if "button-july" in changed_id:
-        return "primary", "success", "primary"
+        return "primary", "danger", "primary"
     elif "button-march" in changed_id:
-        return "danger", "primary", "primary"
+        return "success", "primary", "primary"
     elif "button-august" in changed_id:
         return "primary", "primary", "danger"
     else:

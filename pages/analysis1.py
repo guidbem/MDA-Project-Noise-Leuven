@@ -59,6 +59,19 @@ df_donut = pd.read_csv("doughnut_data.csv")
 # Drop rows with values 'Not Available' and 'Unsupported' in the noise event type column
 df_donut = df_donut[~df_donut['noise_event_laeq_primary_detected_class'].isin(['Not Available', 'Unsupported'])]
 
+
+# Load the data for the donut chart from a CSV file
+df_events = pd.read_csv("doughnut_data.csv")
+
+# Convert result_timestamp to datetime format
+df_events['result_timestamp_datetime'] = pd.to_datetime(df_events['result_timestamp'])
+# Extract month, hour, and date
+df_events['month'] = df_events['result_timestamp_datetime'].dt.month.map(month_mapping)
+df_events['hour'] = df_events['result_timestamp_datetime'].dt.hour
+df_events['date'] = df_events['result_timestamp_datetime'].dt.date
+# Convert result_timestamp_datetime to string format
+df_events['result_timestamp_datetime'] = df_events['result_timestamp_datetime'].dt.strftime('%Y-%m-%d %H:00:00')
+
 # Create the dropdown menu options
 dropdown_options = [{'label': month, 'value': month} for month in ['January', "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", 'December']]
 
@@ -228,12 +241,19 @@ def update_text(month1,month2, yearly_clicks):
 
         # Filter the data based on the selected month
         filtered_df = hourly_data[hourly_data['month'] == month]
-        
+        filtered_event_df = df_events[df_events['month'] == month]
+
+        # Calculate the number of events per hour
+        df_event_counts = filtered_event_df.groupby(['result_timestamp_datetime', 'hour']).size().reset_index(name='event_count')
+
         # Create the line graph
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['laeq'], mode='lines', name='laeq',line=dict(color='navy')))
-        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['lceq'], mode='lines', name='lceq',line=dict(color='red')))
+
         
+        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['laeq'], mode='lines',fill="toself", name='laeq',line=dict(color='#457b9d')))
+        #fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['lceq'], mode='lines', name='lceq',line=dict(color='red')))
+        fig.add_trace(go.Bar(x=df_event_counts['result_timestamp_datetime'], y=(df_event_counts['event_count'])/6, name='Number of events', base=20, marker=dict(color='red'),text=df_event_counts['event_count']))
+
         # Create the donut chart
         filtered_df_donut = df_donut[df_donut['month'] == month]
         event_frequency = filtered_df_donut['noise_event_laeq_primary_detected_class'].value_counts()
@@ -284,15 +304,13 @@ def update_text(month1,month2, yearly_clicks):
         # Create the line graph
         fig = go.Figure()
 
-        # To use if fill = "tonexty"
-        #y_constant = [45] * len(daily_data['datetime'])
-        #fig.add_trace(go.Scatter( x=daily_data['datetime'], y=y_constant, mode='lines',fill="toself", name='Fill to y=45', line=dict(color='rgba(0, 0, 0, 0)'),  hoverinfo='none'))
+        df_event_counts = df_events.groupby('date').size().reset_index(name='event_count')
         
-        fig.add_trace(go.Scatter(x=daily_data['datetime'],y=daily_data['laeq'],mode='lines',fill='toself',name='laeq',line=dict(color='red')))        
-        fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['lceq'], mode='lines', fill='toself',name='lceq',line=dict(color='#457b9d')))
-        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmax(), 'datetime']], y=[daily_data.lceq.max()], mode='markers', name='Highest Value', marker=dict(color='green', size=10)))
-        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmin(), 'datetime']], y=[daily_data.lceq.min()], mode='markers', name='Lowest Value', marker=dict(color='orange', size=10)))
-        
+        fig.add_trace(go.Scatter(x=daily_data['datetime'],y=daily_data['laeq'],mode='lines',fill='toself',name='laeq',line=dict(color='#457b9d')))        
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['laeq'].idxmax(), 'datetime']], y=[daily_data.laeq.max()], mode='markers', name='Noisiest day', marker=dict(color='green', size=10)))
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['laeq'].idxmin(), 'datetime']], y=[daily_data.laeq.min()], mode='markers', name='Quietest day', marker=dict(color='red', size=10)))
+        fig.add_trace(go.Bar(x=df_event_counts['date'], y=(df_event_counts['event_count'])/100, name='Number of events', base=35, marker=dict(color='red'),text=df_event_counts['event_count']))
+
         # Get the last day of each month for the x-axis
         monthly_first_days = daily_data.groupby(pd.Grouper(key='datetime', freq='MS')).first().reset_index()
 
@@ -302,13 +320,13 @@ def update_text(month1,month2, yearly_clicks):
             fig.add_shape(
             type="line",
             x0=line_datetime,
-            y0=45,
+            y0=35,
             x1=line_datetime,
-            y1=66,
+            y1=57,
             line=dict(color="#a8a8a8", width=1, dash="solid"),
         )
         
-            # Update layout for the line graph
+        # Update layout for the line graph
         fig.update_layout(
             title={
                 "text": f"<b>{title_plot}</b>",
