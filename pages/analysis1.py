@@ -288,11 +288,20 @@ def update_text(month1,month2, yearly_clicks):
         #y_constant = [45] * len(daily_data['datetime'])
         #fig.add_trace(go.Scatter( x=daily_data['datetime'], y=y_constant, mode='lines',fill="toself", name='Fill to y=45', line=dict(color='rgba(0, 0, 0, 0)'),  hoverinfo='none'))
         
-        fig.add_trace(go.Scatter(x=daily_data['datetime'],y=daily_data['laeq'],mode='lines',fill='toself',name='laeq',line=dict(color='red')))        
         fig.add_trace(go.Scatter(x=daily_data['datetime'], y=daily_data['lceq'], mode='lines', fill='toself',name='lceq',line=dict(color='#457b9d')))
-        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmax(), 'datetime']], y=[daily_data.lceq.max()], mode='markers', name='Highest Value', marker=dict(color='green', size=10)))
-        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmin(), 'datetime']], y=[daily_data.lceq.min()], mode='markers', name='Lowest Value', marker=dict(color='orange', size=10)))
+        fig.add_trace(go.Scatter(x=daily_data['datetime'],y=daily_data['laeq'],mode='lines',fill='toself',name='laeq',line=dict(color='red')))        
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmax(), 'datetime']],
+                         y=[45,65],
+                         mode='lines',
+                         name='Noisiest day',
+                         line=dict(color='green', dash='dot')))
         
+        
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmax(), 'datetime']], y=[daily_data.lceq.max()], mode='markers', name='Highest Value lceq', marker=dict(color='green', size=10)))
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['lceq'].idxmin(), 'datetime']], y=[daily_data.lceq.min()], mode='markers', name='Lowest Value lceq', marker=dict(color='orange', size=10)))
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['laeq'].idxmax(), 'datetime']], y=[daily_data.laeq.max()], mode='markers', name='Highest Value lceq', marker=dict(color='lightgreen', size=10)))
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['laeq'].idxmin(), 'datetime']], y=[daily_data.laeq.min()], mode='markers', name='Lowest Value lceq', marker=dict(color='yellow', size=10)))
+
         # Get the last day of each month for the x-axis
         monthly_first_days = daily_data.groupby(pd.Grouper(key='datetime', freq='MS')).first().reset_index()
 
