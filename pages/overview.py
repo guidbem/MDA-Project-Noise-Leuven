@@ -54,8 +54,7 @@ card_main = dbc.Card(
             ]
         ),
     ],
-    color="light",
-    inverse=False,  # change color of text (black or white)
+
       outline=False
 )
 
@@ -81,7 +80,7 @@ card_question = dbc.Card(
             #        dbc.ListGroupItem("C. August"),
             #    ], flush=True)
         ]),
-    ], color="info",
+    ], color="lightblue",
 )
 
 card_text = dbc.Card(
@@ -113,7 +112,7 @@ card_eff = dbc.Card(
     [
        # dbc.CardImg(src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQavKjlo6x9uDtaE9zs9e0xEL9eFoN7Cgp8hw&usqp=CAU", #class_name="img-fluid img-thumbnail",top=True, bottom=False),
         dbc.CardBody([
-            html.H4("Noise negative effects",style={"color": "#dc3545"}),
+            html.H4("Noise negative effects",style={"color": "#dc3545", "paddingTop": "15px", "textAlign": "left","fontSize": "32px"}),
             html.P("1. Sleep disturbances:",className="text-center"),
             html.P("2. Stress and psychological effect",className="text-center"),
             html.P("3. Cardiovascular effects",className="text-center"),
@@ -127,7 +126,7 @@ card_ben = dbc.Card(
     [
        #dbc.CardImg(src="https://encrypted-tbn0.gstatic.com/images?#q=tbn:ANd9GcQDJrxrdoitdYDO644nY4xjj_96Yamjfis9wbCTtXJOgMDQemDHfga8517MyXZAJpSWR2g&usqp=CAU", class_name="img-fluid #img-thumbnail",top=True, bottom=False),
         dbc.CardBody([
-            html.H4("Benefits of napping",style={"color": "#dc3545"}),
+            html.H4("Benefits of napping",style={"color": "#dc3545", "paddingTop": "15px", "textAlign": "left","fontSize": "32px"}),
             html.P("1. Increased alertness and productivity",className="text-center"),
             html.P("2. Enhanced mood and relaxation",className="text-center"),
             html.P("3. Memory and learning improvement",className="text-center"),
@@ -141,8 +140,8 @@ card_pro = dbc.Card(
     [
        #dbc.CardImg(src="https://encrypted-tbn0.gstatic.com/images?#q=tbn:ANd9GcQDJrxrdoitdYDO644nY4xjj_96Yamjfis9wbCTtXJOgMDQemDHfga8517MyXZAJpSWR2g&usqp=CAU", class_name="img-fluid #img-thumbnail",top=True, bottom=False),
         dbc.CardBody([
-            html.H4("Noise in Leuven",style={"color": "#dc3545"}),
-            html.P("Monday is the quietest day",className="text-center"),
+            html.H4("Noise in Leuven",style={"color": "#dc3545", "paddingTop": "15px", "textAlign": "left","fontSize": "32px"}),
+            html.P("Weekends seem to be more quiet than weekdays",className="text-center"),
             html.P("Warm weather increases noise in Naamsestraat",className="text-center"),
             html.P("July is a quiet month",className="text-center"),
             html.P("Places far from the oude markt are calmer",className="text-center"),
