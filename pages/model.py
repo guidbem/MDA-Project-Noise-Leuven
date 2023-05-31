@@ -145,6 +145,7 @@ layout = html.Div([
                     'borderRadius': '5px',
                     'textAlign': 'center',
                     'margin-left': '20px',
+                    'margin-bottom': '50px',
                     'display': 'inline-block'
                 },
                 multiple=False
