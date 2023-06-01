@@ -242,7 +242,7 @@ box_style_stationary_findings = {
 }
 
 layout = html.Div([
-        html.H1('Can meteo data be used to predict noise levels?'),
+        html.H1('Can meteo data be used to predict noise levels?' ,style={"paddingLeft": "20px"}),
 
     dbc.Row(
     [
