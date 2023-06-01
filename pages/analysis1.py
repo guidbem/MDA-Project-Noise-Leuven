@@ -64,7 +64,7 @@ df_donut = df_donut[~df_donut['noise_event_laeq_primary_detected_class'].isin(['
 df_events = pd.read_csv("doughnut_data.csv")
 
 # Convert result_timestamp to datetime format
-df_events['result_timestamp_datetime'] = pd.to_datetime(df_events['result_timestamp'])
+df_events['result_timestamp_datetime'] = pd.to_datetime(df_events['result_timestamp'], dayfirst=True)
 # Extract month, hour, and date
 df_events['month'] = df_events['result_timestamp_datetime'].dt.month.map(month_mapping)
 df_events['hour'] = df_events['result_timestamp_datetime'].dt.hour

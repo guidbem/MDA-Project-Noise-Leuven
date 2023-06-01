@@ -224,6 +224,10 @@ card_acf3 = dbc.Card(
 # Layout of the page
 
 layout = html.Div([
+        html.Div(children=[
+        # Horizontal line
+        html.Div( style={"position": "absolute", "left": "0", "top": "68px", "width": "100%", "height": "2px", "backgroundColor": "lightgray", "zIndex": "0"}),
+       ]),
         html.H1('Can meteo data be used to predict noise levels?'),
 
     dbc.Row(
