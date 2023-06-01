@@ -32,15 +32,15 @@ dash.register_page(__name__, path='/model')
 
 classification_report_data = {
     'Class': ['Human voice - Shouting', 'Human voice - Singing', 'Other', 'Transport road - Passenger car', 'Transport road - Siren', ' ', 'accuracy', 'macro avg', 'weighted avg'],
-    'Precision': [0.77, 0.72, 1.00, 0.97, 0.80, ' ', '-', 0.85, 0.95],
-    'Recall': [0.78, 0.44, 0.99, 0.98, 0.67, ' ', '-', 0.77, 0.95],
-    'F1-Score': [0.77, 0.54, 1.00, 0.97, 0.73, ' ', 0.95, 0.80, 0.95],
+    'Precision': [0.76, 0.73, 1.00, 0.97, 0.79, ' ', '-', 0.85, 0.95],
+    'Recall': [0.78, 0.41, 0.99, 0.98, 0.65, ' ', '-', 0.77, 0.95],
+    'F1-Score': [0.77, 0.53, 1.00, 0.97, 0.71, ' ', 0.95, 0.80, 0.95],
     'Support': [1671, 352, 6224, 14301, 622, ' ', 23170, 23170, 23170]
 }
 classification_report_df = pd.DataFrame(classification_report_data)
 
-fig = '/assets/confusion_matrix.png'
-balanced_accuracy = 77.2
+fig = '/assets/confusion_matrix_2.png'
+balanced_accuracy = 76.5
 
 label = {
     'Number': [0, 1, 2, 3, 4],
