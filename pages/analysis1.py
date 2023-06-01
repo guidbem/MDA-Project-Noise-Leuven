@@ -149,7 +149,7 @@ box_style_content = {
 
 # Define the layout
 layout = html.Div([
-    html.H3('Visual Analysis', style={"position": "absolute","font-size": "34px",'margin-left':'670px', 'margin-top':'10px',"zIndex": "1","text-align": "center","color": "#dc3545","fontWeight": "bold",}),
+    html.H3('Visual Analysis', style={"position": "absolute","font-size": "34px",'margin-left':'650px', 'margin-top':'10px',"zIndex": "1","text-align": "center","color": "#dc3545","fontWeight": "bold",}),
     
     # Bullets points Line plot
     html.Div(
@@ -211,7 +211,7 @@ layout = html.Div([
     # Line plot graph
     html.Div(className="graph", style={"background-color": "#F5F5F5"}, children=[
         html.Div(style={"marginBottom": "10px", "display": "flex"}, children=[
-            dbc.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-left": "1350px","margin-top": "20px","zIndex": "2"}, outline=False, color="danger", className="me-1"),
+            dbc.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-left": "1350px","margin-top": "40px","zIndex": "0"}, outline=False, color="danger", className="me-1"),
         ]), 
         dcc.Graph(id="line-graph", style={"margin-left": "400px","margin-top": "120px"}),
     ]),

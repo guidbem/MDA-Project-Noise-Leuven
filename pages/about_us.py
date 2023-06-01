@@ -70,7 +70,7 @@ layout = html.Div(
                     style={"text-align": "center"}
                 ),
                 html.H3(
-                    children="Our Team",
+                    children="Our Team - Poland",
                     style={"text-align": "center"}
                 ),
                 html.P(
