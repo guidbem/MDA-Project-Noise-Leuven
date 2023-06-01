@@ -7,7 +7,7 @@ gdown
 polars
 folium
 plotly
-dateutil
+python-dateutil
 dash
 dash_bootstrap_components
 flask
