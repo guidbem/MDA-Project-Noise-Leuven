@@ -11,7 +11,7 @@ import dash_bootstrap_components as dbc
 dash.register_page(__name__, path='/analysis-1')
 
 # Load the data and convert date, hour, and minute columns to datetime
-df = pd.read_parquet("noise_minutes.parquet")
+df = pd.read_parquet("data/noise_minutes.parquet")
 df = df.sort_values(by=["date","hour","min"])
 df['datetime'] = pd.to_datetime(df['date']) + pd.to_timedelta(df['hour'], unit="h")  +pd.to_timedelta(df["min"], unit="m")
 df.set_index('datetime', inplace=True)
@@ -55,16 +55,16 @@ hourly_data['month'] = hourly_data['month'].map(month_mapping)
 daily_data['month'] = daily_data['month'].map(month_mapping)
 
 # Load the data for the donut chart from a CSV file
-df_donut = pd.read_csv("doughnut_data.csv")
+df_donut = pd.read_csv("data/doughnut_data.csv")
 # Drop rows with values 'Not Available' and 'Unsupported' in the noise event type column
 df_donut = df_donut[~df_donut['noise_event_laeq_primary_detected_class'].isin(['Not Available', 'Unsupported'])]
 
 
 # Load the data for the donut chart from a CSV file
-df_events = pd.read_csv("doughnut_data.csv")
+df_events = pd.read_csv("data/doughnut_data.csv")
 
 # Convert result_timestamp to datetime format
-df_events['result_timestamp_datetime'] = pd.to_datetime(df_events['result_timestamp'])
+df_events['result_timestamp_datetime'] = pd.to_datetime(df_events['result_timestamp'], dayfirst=True)
 # Extract month, hour, and date
 df_events['month'] = df_events['result_timestamp_datetime'].dt.month.map(month_mapping)
 df_events['hour'] = df_events['result_timestamp_datetime'].dt.hour
@@ -98,49 +98,83 @@ option_style = {
 
 # The styles of the boxes
 box_style_lcpeak = {
-    'height':'100px',
+    'height':'120px',
     'width':'300px',
-    'background-color': 'lightblue',
+    'background-color': 'rgb(225,0,0,0.1)',
     'padding': '10px',
     'border-radius': '5px',
     'margin-bottom': '10px',
     'position': 'absolute',
-    'top': '100px',
-    'left': '350px'
+    'top': '140px',
+    'left': '450px',
+    'border': '2px solid red',
+    "zIndex": "1",
 }
 
 box_style_avg_laeq = {
-    'height':'100px',
+    'height':'125px',
     'width':'300px',
-    'background-color': 'lightgreen',
+    'background-color': 'rgb(225,0,0,0.1)',
     'padding': '10px',
     'border-radius': '5px',
     'margin-bottom': '10px',
     'position': 'absolute',
-    'top': '100px',
-    'right': '350px'
+    'top': '140px',
+    'right': '230px',
+    'border': '2px solid red',
+    "zIndex": "1",
 }
 
 box_style_content = {
     'height':'400px',
     'width':'300px',
-    'background-color': 'lightpink',
+    'background-color': 'rgb(225,0,0,0.1)',
     'padding': '10px',
     'border-radius': '5px',
     'margin-bottom': '10px',
     'position': 'absolute',
-    'top': '950px',
-    'left': '15px'
+    'top': '1020px',
+    'left': '15px',
+    'border': '2px solid red'
+
 }
 
 # Define the layout
 layout = html.Div([
+    html.H3('Visual Analysis', style={"position": "absolute","font-size": "34px",'margin-left':'670px', 'margin-top':'10px',"zIndex": "1","text-align": "center","color": "#dc3545","fontWeight": "bold",}),
+    
+    # Bullets points Line plot
+    html.Div(
+    children=[
+        html.H4('Line Plot',style={"color": "#dc3545","fontWeight": "bold","font-size": "24px",'margin-left':'30px'},),
+        html.Ul(
+            children=[
+                html.Li('Laeq is the average equivalent continuous sound level.',style={"margin-top":"40px"}),
+                html.Li('It is possible to see a correlation between noisy days/hours (higher "laeq" values) and the number of events recorded in the same time frame.',style={"margin-top":"10px"}),
+                html.Li('Noise levels exhibit fluctuations corresponding to the academic year., while noise decreases during examination periods. ',style={"margin-top":"10px"}),
+                html.Li('Higher noise levels when the majority of students are in town, expecially at the beginning of each semester.',style={"margin-top":"10px"}),
+                html.Li('Noise levels drop during Christmas, summer break, and Easter break.',style={"margin-top":"10px"})
+            ]
+        )
+    ],
+    style={'margin-left': '5px',"position": "absolute",'margin-top': '120px','max-width': '300px'}
+    ),
+
+    # Title Heatmap and Event Frequency
+    html.Div(
+    children=[
+        html.H4('Heatmap and Event Frequency',style={"color": "#dc3545","fontWeight": "bold","font-size": "24px",'margin-left':'30px'},),
+    ],
+    style={'margin-left': '5px',"position": "absolute",'margin-top': '860px','max-width': '300px'}
+    ),
+
     # First dropdown menu for selecting a month
+
     dcc.Dropdown(
         id='month-dropdown',
         options=dropdown_options,
         placeholder="Select a Month",
-        style={"position": "absolute", "zIndex": "1", "width": "200px"},
+        style={"position": "absolute", "zIndex": "0", "width": "200px","margin-top":"20px","margin-left":"10px"},
     ),
 
     # Interactive Text for displaying the highest lcpeak
@@ -169,7 +203,7 @@ layout = html.Div([
     # Line plot graph
     html.Div(className="graph", style={"background-color": "#F5F5F5"}, children=[
         html.Div(style={"marginBottom": "10px", "display": "flex"}, children=[
-            dbc.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-left": "1350px","margin-top": "0px","zIndex": "2"}, outline=False, color="danger", className="me-1"),
+            dbc.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-left": "1350px","margin-top": "20px","zIndex": "2"}, outline=False, color="danger", className="me-1"),
         ]), 
         dcc.Graph(id="line-graph", style={"margin-left": "400px","margin-top": "120px"}),
     ]),
@@ -180,10 +214,10 @@ layout = html.Div([
         html.Div( style={"position": "absolute", "left": "0", "top": "68px", "width": "100%", "height": "2px", "backgroundColor": "lightgray", "zIndex": "0"}),
 
         # Vertical Line 
-        html.Div(style={"position": "absolute", "left": "330px", "top": "68px", "width": "1px", "height": "1400px", "backgroundColor": "lightgray", "zIndex": "0"}),
+        html.Div(style={"position": "absolute", "left": "330px", "top": "68px", "width": "1px", "height": "1420px", "backgroundColor": "lightgray", "zIndex": "0"}),
 
         # Horizontal line
-        html.Div(style={"position": "absolute","left": "0","top": "806px","width": "100%","height": "2px","backgroundColor": "lightgray","zIndex": "0"}),
+        html.Div(style={"position": "absolute","left": "0","top": "826px","width": "100%","height": "2px","backgroundColor": "lightgray","zIndex": "0"}),
     ]),
 
     # Second dropdown menu for selecting a month
@@ -191,7 +225,7 @@ layout = html.Div([
         id='month-dropdown2',
         options=dropdown_options,
         placeholder="Select a Month",
-        style={"position": "absolute", "zIndex": "1", "width": "200px","margin-top":"30px"},
+        style={"position": "absolute", "zIndex": "1", "width": "200px","margin-top":"20px","margin-left":"10px"},
     ),
 
     html.Div([ 
@@ -248,12 +282,29 @@ def update_text(month1,month2, yearly_clicks):
 
         # Create the line graph
         fig = go.Figure()
+        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['laeq'], mode='lines', name='laeq',line=dict(color='#457b9d')))
+        fig.add_trace(go.Scatter(x=[filtered_df.loc[filtered_df['laeq'].idxmax(), 'datetime']], y=[filtered_df.laeq.max()], mode='markers', name='Noisiest hour', marker=dict(color='#8B1A1A', size=10)))
+        fig.add_trace(go.Scatter(x=[filtered_df.loc[filtered_df['laeq'].idxmin(), 'datetime']], y=[filtered_df.laeq.min()], mode='markers', name='Quietest hour', marker=dict(color='#FF7D40', size=10)))
+        fig.add_trace(go.Bar(x=df_event_counts['result_timestamp_datetime'], y=(df_event_counts['event_count'])/6, name='Number of events', base=20, marker=dict(color='green'),text=df_event_counts['event_count']))
 
-        
-        fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['laeq'], mode='lines',fill="toself", name='laeq',line=dict(color='#457b9d')))
-        #fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['lceq'], mode='lines', name='lceq',line=dict(color='red')))
-        fig.add_trace(go.Bar(x=df_event_counts['result_timestamp_datetime'], y=(df_event_counts['event_count'])/6, name='Number of events', base=20, marker=dict(color='red'),text=df_event_counts['event_count']))
+        # Filter the rows for Mondays
+        filtered_df = filtered_df.copy()
+        filtered_df.loc[:, 'weekday'] = filtered_df['datetime'].dt.weekday
+        filtered_df.loc[:, 'hour'] = filtered_df['datetime'].dt.hour
+        mondays_filtered_df = filtered_df[(filtered_df['weekday'] == 0) & (filtered_df['hour'] == 0)]  # 0 corresponds to Monday
 
+        # Add vertical lines at the start of each for Monday
+        for _, row in mondays_filtered_df.iterrows():
+            line_datetime = row['datetime']
+            fig.add_shape(
+            type="line",
+            x0=line_datetime,
+            y0=20,
+            x1=line_datetime,
+            y1=65,
+            line=dict(color="#a8a8a8", width=1, dash="solid"),
+        )
+            
         # Create the donut chart
         filtered_df_donut = df_donut[df_donut['month'] == month]
         event_frequency = filtered_df_donut['noise_event_laeq_primary_detected_class'].value_counts()
@@ -281,7 +332,7 @@ def update_text(month1,month2, yearly_clicks):
         # Calculate and format the highest lcpeak and noisiest day values for the text
         else:
 
-            # Find the hour with the highest lcpeak and extract relevant information
+            # Find the hour with the highest lcpeak and extract information
             hour_with_highest_lcpeak = filtered_df.loc[filtered_df['lcpeak'].idxmax(), 'datetime']
             day_name = hour_with_highest_lcpeak.day
             weekday_name = hour_with_highest_lcpeak.strftime("%A")
@@ -289,7 +340,7 @@ def update_text(month1,month2, yearly_clicks):
             max_value = filtered_df.lcpeak.max()
             formatted_date = f"{month} {day_name} {weekday_name}, at {hour_name} ({max_value}dB)"
 
-            # Filter the daily data based on the selected month to find the day with the highest laeq and extract relevant information
+            # Filter the daily data based on the selected month to find the day with the highest laeq and extract information
             filtered_df = daily_data[daily_data['month'] == month]
             day_with_highest_laeq = filtered_df.loc[filtered_df['laeq'].idxmax(), 'datetime']
             day_name = day_with_highest_laeq.day
@@ -307,9 +358,9 @@ def update_text(month1,month2, yearly_clicks):
         df_event_counts = df_events.groupby('date').size().reset_index(name='event_count')
         
         fig.add_trace(go.Scatter(x=daily_data['datetime'],y=daily_data['laeq'],mode='lines',fill='toself',name='laeq',line=dict(color='#457b9d')))        
-        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['laeq'].idxmax(), 'datetime']], y=[daily_data.laeq.max()], mode='markers', name='Noisiest day', marker=dict(color='green', size=10)))
-        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['laeq'].idxmin(), 'datetime']], y=[daily_data.laeq.min()], mode='markers', name='Quietest day', marker=dict(color='red', size=10)))
-        fig.add_trace(go.Bar(x=df_event_counts['date'], y=(df_event_counts['event_count'])/100, name='Number of events', base=35, marker=dict(color='red'),text=df_event_counts['event_count']))
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['laeq'].idxmax(), 'datetime']], y=[daily_data.laeq.max()], mode='markers', name='Noisiest day', marker=dict(color='#8B1A1A', size=10)))
+        fig.add_trace(go.Scatter(x=[daily_data.loc[daily_data['laeq'].idxmin(), 'datetime']], y=[daily_data.laeq.min()], mode='markers', name='Quietest day', marker=dict(color='#FF7D40', size=10)))
+        fig.add_trace(go.Bar(x=df_event_counts['date'], y=(df_event_counts['event_count'])/100, name='Number of events', base=35, marker=dict(color='green'),text=df_event_counts['event_count']))
 
         # Get the last day of each month for the x-axis
         monthly_first_days = daily_data.groupby(pd.Grouper(key='datetime', freq='MS')).first().reset_index()
@@ -421,7 +472,7 @@ def update_text(month1,month2, yearly_clicks):
 
     # Update layout for the donut chart
     donut_fig.update_layout(
-        title='Event Frequency for ' + (month if month is not None else 'Year'),
+        title='<b>Event Frequency for ' + (month if month is not None else 'Year') + '</b>',
         height=400,
         width=500
     )
@@ -430,9 +481,9 @@ def update_text(month1,month2, yearly_clicks):
     heatmap_fig.update_layout(
         xaxis_title='Day of the Week',
         yaxis_title='Time',
-        title='Hourly Heatmap for ' + (month if month is not None else 'Year') ,
+        title='<b>Laeq Hourly Heatmap for ' + (month if month is not None else 'Year') + '</b>',
         height=600,
-        width=600
+        width=600,
     )
 
     # Return the formatted date, formatted average date, line graph, donut chart, and heatmap graph
