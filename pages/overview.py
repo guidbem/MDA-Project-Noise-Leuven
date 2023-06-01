@@ -12,7 +12,7 @@ dash.register_page(__name__, path='/')
 
 ###Construct a map to show where the noise events where registered in the Naamsestraat
 # Load the data
-df = pd.read_csv('doughnut_data.csv')
+df = pd.read_csv('data/doughnut_data.csv')
 
 # Make a dictionary with Latitude and longitude
 locations = {

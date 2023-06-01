@@ -7,7 +7,7 @@ from utils import download_gdrive_folder, merge_csv_files, convert_utc_to_cest_m
 ######### METEO DATA #########
 # Download the Meteo Data (Q1-Q4 csv files in Google Drive)
 print('Downloading Meteo Data...')
-folder_meteo_data = 'meteo_data'
+folder_meteo_data = 'data/meteo_data'
 if not os.path.exists(folder_meteo_data):
     download_gdrive_folder(
         url="https://drive.google.com/drive/folders/1pyhwyBj2bh5WTZEu67xPYqZjF5OcECF5",
@@ -18,7 +18,7 @@ else:
 
 # Merge the Meteo Data into a single parquet file
 print('Merging Meteo Data...')
-meteo_data_path = 'meteo_data.parquet'
+meteo_data_path = 'data/meteo_data.parquet'
 if not os.path.isfile(meteo_data_path):
     merge_csv_files(folder_meteo_data, meteo_data_path)
 
@@ -32,8 +32,8 @@ shutil.rmtree(folder_meteo_data)
 # Download the Noise Percentile and Events Data (year zip files in google drive folder)
 print('Downloading Noise Percentile and Events Data...')
 tmp_folder = 'tmp'
-folder_percentiles_data = 'noise_percentiles'
-folder_events_data = 'noise_events'
+folder_percentiles_data = 'data/noise_percentiles'
+folder_events_data = 'data/noise_events'
 if not os.path.exists(folder_percentiles_data) and not os.path.exists(folder_events_data):
     download_gdrive_folder(
         url="https://drive.google.com/drive/folders/17NrwOWm8-zvIv5J7keAjTPqWiH1CjQzf",
@@ -61,7 +61,7 @@ else:
 
 # Merge the Noise Percentile Data into a single parquet file
 print('Merging Noise Percentile Data...')
-percentiles_data_path = 'noise_percentiles.parquet'
+percentiles_data_path = 'data/noise_percentiles.parquet'
 if not os.path.isfile(percentiles_data_path):
     merge_csv_files(folder_percentiles_data, percentiles_data_path, sep=';')
 
@@ -70,7 +70,7 @@ shutil.rmtree(folder_percentiles_data)
 
 # Merge the Noise Events Data into a single parquet file
 print('Merging Noise Events Data...')
-events_data_path = 'noise_events.parquet'
+events_data_path = 'data/noise_events.parquet'
 if not os.path.isfile(events_data_path):
     merge_csv_files(folder_events_data, events_data_path, sep=';', infer_schema_length=2000)
 
@@ -80,7 +80,7 @@ shutil.rmtree(folder_events_data)
 ######### NOISE LEVELS DATA #########
 # Download the Noise Levels Data (month zip files in google drive folder)
 print('Downloading Noise Levels Data (can take a while)...')
-folder_levels_data = 'noise_levels'
+folder_levels_data = 'data/noise_levels'
 if not os.path.exists(folder_levels_data):
     download_gdrive_folder(
         url = "https://drive.google.com/drive/folders/1HT-ctj8Aj6qcVMZYBxi3YM4XC9fbFjSN",
@@ -102,7 +102,7 @@ else:
     print(f'{folder_levels_data} folder already exists.')
 
 # Merge the Months Noise Levels Data into a single parquet files
-noise_levels_merged_folder = 'noise_levels_parquets'
+noise_levels_merged_folder = 'data/noise_levels_parquets'
 if not os.path.exists(noise_levels_merged_folder):
     os.mkdir(noise_levels_merged_folder)
 print('Merging Noise Levels Data...')
