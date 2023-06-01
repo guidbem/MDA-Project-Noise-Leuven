@@ -10,8 +10,7 @@ plotly
 python-dateutil
 dash
 dash_bootstrap_components
-flask
-urllib.parse
-matplotlib.pyplot
+Flask
+matplotlib
 statsmodels
 pyarrow
