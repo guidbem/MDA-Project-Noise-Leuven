@@ -211,7 +211,7 @@ layout = html.Div([
     # Line plot graph
     html.Div(className="graph", style={"background-color": "#F5F5F5"}, children=[
         html.Div(style={"marginBottom": "10px", "display": "flex"}, children=[
-            dbc.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-left": "1350px","margin-top": "20px","zIndex": "2"}, outline=False, color="danger", className="me-1"),
+            dbc.Button("Yearly Data", id="yearly-button", n_clicks=0, style={"margin-left": "1350px","margin-top": "20px","zIndex": "1"}, outline=False, color="danger", className="me-1"),
         ]), 
         dcc.Graph(id="line-graph", style={"margin-left": "400px","margin-top": "120px"}),
     ]),
