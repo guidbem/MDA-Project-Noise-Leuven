@@ -133,7 +133,7 @@ box_style_content = {
     'border-radius': '5px',
     'margin-bottom': '10px',
     'position': 'absolute',
-    'top': '950px',
+    'top': '1020px',
     'left': '15px',
     'border': '2px solid red'
 
@@ -142,12 +142,39 @@ box_style_content = {
 # Define the layout
 layout = html.Div([
     html.H3('Visual Analysis', style={"position": "absolute","font-size": "34px",'margin-left':'670px', 'margin-top':'10px',"zIndex": "1","text-align": "center","color": "#dc3545","fontWeight": "bold",}),
+    
+    # Bullets points Line plot
+    html.Div(
+    children=[
+        html.H4('Line Plot',style={"color": "#dc3545","fontWeight": "bold","font-size": "24px",'margin-left':'30px'},),
+        html.Ul(
+            children=[
+                html.Li('Laeq is the average equivalent continuous sound level.',style={"margin-top":"40px"}),
+                html.Li('It is possible to see a correlation between noisy days/hours (higher "laeq" values) and the number of events recorded in the same time frame.',style={"margin-top":"10px"}),
+                html.Li('Noise levels exhibit fluctuations corresponding to the academic year., while noise decreases during examination periods. ',style={"margin-top":"10px"}),
+                html.Li('Higher noise levels when the majority of students are in town, expecially at the beginning of each semester.',style={"margin-top":"10px"}),
+                html.Li('Noise levels drop during Christmas, summer break, and Easter break.',style={"margin-top":"10px"})
+            ]
+        )
+    ],
+    style={'margin-left': '5px',"position": "absolute",'margin-top': '120px','max-width': '300px'}
+    ),
+
+    # Title Heatmap and Event Frequency
+    html.Div(
+    children=[
+        html.H4('Heatmap and Event Frequency',style={"color": "#dc3545","fontWeight": "bold","font-size": "24px",'margin-left':'30px'},),
+    ],
+    style={'margin-left': '5px',"position": "absolute",'margin-top': '860px','max-width': '300px'}
+    ),
+
     # First dropdown menu for selecting a month
+
     dcc.Dropdown(
         id='month-dropdown',
         options=dropdown_options,
         placeholder="Select a Month",
-        style={"position": "absolute", "zIndex": "1", "width": "200px","margin-top":"20px","margin-right":"10px"},
+        style={"position": "absolute", "zIndex": "0", "width": "200px","margin-top":"20px","margin-left":"10px"},
     ),
 
     # Interactive Text for displaying the highest lcpeak
@@ -187,7 +214,7 @@ layout = html.Div([
         html.Div( style={"position": "absolute", "left": "0", "top": "68px", "width": "100%", "height": "2px", "backgroundColor": "lightgray", "zIndex": "0"}),
 
         # Vertical Line 
-        html.Div(style={"position": "absolute", "left": "330px", "top": "68px", "width": "1px", "height": "1400px", "backgroundColor": "lightgray", "zIndex": "0"}),
+        html.Div(style={"position": "absolute", "left": "330px", "top": "68px", "width": "1px", "height": "1420px", "backgroundColor": "lightgray", "zIndex": "0"}),
 
         # Horizontal line
         html.Div(style={"position": "absolute","left": "0","top": "826px","width": "100%","height": "2px","backgroundColor": "lightgray","zIndex": "0"}),
@@ -198,7 +225,7 @@ layout = html.Div([
         id='month-dropdown2',
         options=dropdown_options,
         placeholder="Select a Month",
-        style={"position": "absolute", "zIndex": "1", "width": "200px","margin-top":"30px"},
+        style={"position": "absolute", "zIndex": "1", "width": "200px","margin-top":"20px","margin-left":"10px"},
     ),
 
     html.Div([ 
@@ -255,8 +282,6 @@ def update_text(month1,month2, yearly_clicks):
 
         # Create the line graph
         fig = go.Figure()
-
-        
         fig.add_trace(go.Scatter(x=filtered_df['datetime'], y=filtered_df['laeq'], mode='lines', name='laeq',line=dict(color='#457b9d')))
         fig.add_trace(go.Scatter(x=[filtered_df.loc[filtered_df['laeq'].idxmax(), 'datetime']], y=[filtered_df.laeq.max()], mode='markers', name='Noisiest hour', marker=dict(color='#8B1A1A', size=10)))
         fig.add_trace(go.Scatter(x=[filtered_df.loc[filtered_df['laeq'].idxmin(), 'datetime']], y=[filtered_df.laeq.min()], mode='markers', name='Quietest hour', marker=dict(color='#FF7D40', size=10)))
@@ -447,7 +472,7 @@ def update_text(month1,month2, yearly_clicks):
 
     # Update layout for the donut chart
     donut_fig.update_layout(
-        title='Event Frequency for ' + (month if month is not None else 'Year'),
+        title='<b>Event Frequency for ' + (month if month is not None else 'Year') + '</b>',
         height=400,
         width=500
     )
@@ -456,7 +481,7 @@ def update_text(month1,month2, yearly_clicks):
     heatmap_fig.update_layout(
         xaxis_title='Day of the Week',
         yaxis_title='Time',
-        title='Hourly Heatmap for ' + (month if month is not None else 'Year') ,
+        title='<b>Laeq Hourly Heatmap for ' + (month if month is not None else 'Year') + '</b>',
         height=600,
         width=600,
     )

@@ -11,25 +11,9 @@ import io
 from urllib.parse import quote
 import base64
 
-#from sklearn.pipeline import Pipeline, make_pipeline
-#from sklearn.model_selection import train_test_split, KFold, cross_val_score, StratifiedKFold, GridSearchCV, RandomizedSearchCV
-#from lightgbm import LGBMClassifier
-#from sklearn.preprocessing import FunctionTransformer
-#from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score, classification_report, balanced_accuracy_score
-#import pandas as pd
-#import numpy as np
-#import seaborn as sns
-#import matplotlib.pyplot as plt
-#from pprint import pprint
-#from skopt import BayesSearchCV
-#from skopt.space import Real, Integer
-#from utils.model_datatransforms import *
-
-
-
 dash.register_page(__name__, path='/model')
 
-
+# Classification table
 classification_report_data = {
     'Class': ['Human voice - Shouting', 'Human voice - Singing', 'Other', 'Transport road - Passenger car', 'Transport road - Siren', ' ', 'accuracy', 'macro avg', 'weighted avg'],
     'Precision': [0.76, 0.73, 1.00, 0.97, 0.79, ' ', '-', 0.85, 0.95],
@@ -42,6 +26,7 @@ classification_report_df = pd.DataFrame(classification_report_data)
 fig = '/assets/confusion_matrix_2.png'
 balanced_accuracy = 76.5
 
+# Mapping of class numbers to their corresponding labels
 label = {
     'Number': [0, 1, 2, 3, 4],
     'String': ['Human voice - Shouting', 'Human voice - Singing', 'Other', 'Transport road - Passenger car', 'Transport road - Siren']
@@ -51,18 +36,11 @@ df_label = pd.DataFrame(label)
 
 # Define the layout
 layout = html.Div([
-
-    #html.H1('Model - To do:'),
-    
-    #html.Div([
-    #    html.P('Confusion Matrix, Classification Table, ROC curve, Insert .csv file')
-    #]),
-    #--------- Add other necessary things here ---------#
-
-
     dbc.Row([
         dbc.Col([
             html.H3('Classification Report', style={'margin-left':'50px', 'margin-top':'10px'}),
+
+            # Create a table to display the classification report
             dbc.Table(
                 id='classification-report-table',
                 bordered=True,
@@ -103,6 +81,8 @@ layout = html.Div([
                     ])
                 ]
             ),
+
+            # Create a card to display the Balanced Accuracy
             html.Div([
                 dbc.Card([
                     dbc.CardBody([
@@ -112,6 +92,8 @@ layout = html.Div([
                 ], className="mb-4", style={'backgroundColor':'rgba(255, 0, 0, 0.4)', "margin": "auto", "maxWidth": "fit-content", "padding": "10px"})
             ]),
         ], width=6), 
+
+        # Confusion Matrix image
         dbc.Col([
         html.H3('Confusion Matrix', style={'margin-left':'70px', 'margin-top':'10px'}),
         html.Img(src=fig, style={'width': '600px', 'margin-left':'70px', 'border': '1px solid black', 'margin-top':'10px'})
@@ -130,6 +112,8 @@ layout = html.Div([
 
     html.Div([
         html.Div([
+
+            # Upload button
             dcc.Upload(
                 id="upload-data",
                 children=html.Div([
@@ -172,10 +156,14 @@ def update_output(contents):
         try:
             df_test = pd.read_csv(
                 io.StringIO(decoded.decode('utf-8')))
-            #print(df_test.head())
+
+            # Loading the saved model (LightGBM)
             loaded_model = pickle.load(open('best_model.pkl', 'rb'))
+
+            # Predicting the labels
             pred = loaded_model.predict(df_test)
-            #pred = pd.DataFrame(pred)
+
+            # Iterate over df_label DataFrame to assign labels based on 'Number' column
             df_label['label'] = " "
             for index, row in df_label.iterrows():
                 number = row['Number']
@@ -183,14 +171,21 @@ def update_output(contents):
                 df_label.loc[df_label['Number'] == number, 'label'] = string
 
             df_assigned = pd.DataFrame({'Number': pred})
+
+            # Merge predicted labels with original labels
             df_assigned = pd.merge(df_assigned, df_label, on='Number', how='left')
-            # Print the result
+
+            # Drop unnecessary columns from the result
             result = df_assigned.drop(columns=['Number', 'String'])
-            #result = LabelEncoder().inverse_transform(result)
+
+            # Concatenate original data with result
             merged_df = pd.concat([df_test, result], axis=1)
+
+            # Format CSV string for download
             csv_string = merged_df.to_csv(index=False)
             csv_string = "data:text/csv;charset=utf-8," + quote(csv_string, safe='')
 
+            # Display a link to download the merged data as a CSV file
             return html.Div([
                 html.A(
                     dbc.Button('Download Predictions', id="download-button", outline=True, color="danger"),
@@ -201,6 +196,7 @@ def update_output(contents):
 
         except KeyError as e:
             error_message = f"KeyError: '{e.args[0]}' column not found in the uploaded file."
+            # Display an error message if the required column is not found in the uploaded file
             return html.Div([
                 html.P(error_message, style={'color': 'red'})
             ])
