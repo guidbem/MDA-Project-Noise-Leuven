@@ -9,3 +9,6 @@ pyarrow
 category-encoders
 imblearn
 folium
+lightgbm
+xgboost
+
