@@ -20,7 +20,7 @@ if not os.path.isfile(minutes_data_path):
 
 print(f'Noise Minutes Data Downloaded and Merged into {minutes_data_path}.')
 shutil.rmtree(noise_levels_min_folder)
-
+shutil.rmtree(noise_levels_merged_folder)
 # Read the Parquet file into a pandas DataFrame
 df_parquet = pd.read_parquet('data/noise_events.parquet')
 
