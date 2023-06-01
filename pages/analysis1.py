@@ -58,6 +58,14 @@ daily_data['month'] = daily_data['month'].map(month_mapping)
 df_donut = pd.read_csv("data/doughnut_data.csv")
 # Drop rows with values 'Not Available' and 'Unsupported' in the noise event type column
 df_donut = df_donut[~df_donut['noise_event_laeq_primary_detected_class'].isin(['Not Available', 'Unsupported'])]
+# Convert result_timestamp to datetime format
+df_donut['result_timestamp_datetime'] = pd.to_datetime(df_donut['result_timestamp'], dayfirst=True)
+# Extract month, hour, and date
+df_donut['month'] = df_donut['result_timestamp_datetime'].dt.month.map(month_mapping)
+df_donut['hour'] = df_donut['result_timestamp_datetime'].dt.hour
+df_donut['date'] = df_donut['result_timestamp_datetime'].dt.date
+# Convert result_timestamp_datetime to string format
+df_donut['result_timestamp_datetime'] = df_donut['result_timestamp_datetime'].dt.strftime('%Y-%m-%d %H:00:00')
 
 
 # Load the data for the donut chart from a CSV file
