@@ -6,3 +6,4 @@ meteo_data.parquet
 noise_minutes.parquet
 stadhuis.png
 *.csv
+data/*
