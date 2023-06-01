@@ -2,3 +2,8 @@
 noise_levels_parquets
 .venv
 *__pycache__*
+meteo_data.parquet
+noise_minutes.parquet
+stadhuis.png
+*.csv
+data/*
