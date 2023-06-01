@@ -11,7 +11,7 @@ import dash_bootstrap_components as dbc
 dash.register_page(__name__, path='/analysis-1')
 
 # Load the data and convert date, hour, and minute columns to datetime
-df = pd.read_parquet("noise_minutes.parquet")
+df = pd.read_parquet("data/noise_minutes.parquet")
 df = df.sort_values(by=["date","hour","min"])
 df['datetime'] = pd.to_datetime(df['date']) + pd.to_timedelta(df['hour'], unit="h")  +pd.to_timedelta(df["min"], unit="m")
 df.set_index('datetime', inplace=True)
@@ -55,13 +55,13 @@ hourly_data['month'] = hourly_data['month'].map(month_mapping)
 daily_data['month'] = daily_data['month'].map(month_mapping)
 
 # Load the data for the donut chart from a CSV file
-df_donut = pd.read_csv("doughnut_data.csv")
+df_donut = pd.read_csv("data/doughnut_data.csv")
 # Drop rows with values 'Not Available' and 'Unsupported' in the noise event type column
 df_donut = df_donut[~df_donut['noise_event_laeq_primary_detected_class'].isin(['Not Available', 'Unsupported'])]
 
 
 # Load the data for the donut chart from a CSV file
-df_events = pd.read_csv("doughnut_data.csv")
+df_events = pd.read_csv("data/doughnut_data.csv")
 
 # Convert result_timestamp to datetime format
 df_events['result_timestamp_datetime'] = pd.to_datetime(df_events['result_timestamp'], dayfirst=True)
