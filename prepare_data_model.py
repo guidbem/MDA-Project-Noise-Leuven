@@ -2,8 +2,10 @@ import polars as pl
 import pandas as pd
 import numpy as np
 from utils import datetime_column_splitter, merge_noise_levels
+
+
 # Read the noise events data
-df_events = pd.read_parquet('noise_events.parquet')
+df_events = pd.read_parquet('data/noise_events.parquet')
 
 # Drops the "description" and "xx_unit" columns
 df_events = df_events.drop(columns=[
@@ -33,7 +35,7 @@ df_events = df_events.with_columns(
     pl.col('date').dt.date())
 
 # Reads the meteorological data
-df_meteo = pl.read_parquet('meteo_data.parquet')
+df_meteo = pl.read_parquet('data/meteo_data.parquet')
 
 # Select only necessary columns in the meteo dataframe
 df_meteo = df_meteo.select([
@@ -82,4 +84,4 @@ df_ev_mt = df_ev_mt.drop(columns=['minute_rounded', 'hour_rounded'])
 df_ev_mt_lvls = merge_noise_levels(df_ev_mt, n_shifts=5)
 
 # Saves the dataframe as a parquet file
-df_ev_mt_lvls.write_parquet('pred_model_data_full.parquet')
+df_ev_mt_lvls.write_parquet('data/pred_model_data_full.parquet')

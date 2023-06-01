@@ -144,4 +144,3 @@ def sec_to_min(parquet_file_path: str, output_path: str):
 
     # Write the result to a Parquet file
     minu.write_parquet(output_path)
-    df.to_parquet(file_path)
