@@ -23,7 +23,7 @@ classification_report_data = {
 }
 classification_report_df = pd.DataFrame(classification_report_data)
 
-fig = '/assets/confusion_matrix_2.png'
+fig = '/assets/confusion_matrix.png'
 balanced_accuracy = 76.5
 
 # Mapping of class numbers to their corresponding labels

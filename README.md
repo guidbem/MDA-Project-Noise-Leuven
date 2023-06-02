@@ -12,3 +12,4 @@ After cloning the repository:
 - Run the full *pull_and_merge_data.py* to obtain ready-to-use parquet files with the project data (it takes a bit of time to run, as there is more than 18GB of data to be downloaded). This has to be ran before both the instructions below.
 - Run the *prepare_data_analysis.py* to obtain the required data for the analysis and app (large data manipulations, also can take some time).
 - Run the *prepare_data_model.py* to obtain the required data to train, test and evaluate the noise event prediction model.
+- Run the *best_model.py* script to generate and store the figures for the app and the best model in a .pkl file.
