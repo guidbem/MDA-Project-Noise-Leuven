@@ -16,15 +16,17 @@ dash.register_page(__name__, path='/model')
 # Classification table
 classification_report_data = {
     'Class': ['Human voice - Shouting', 'Human voice - Singing', 'Other', 'Transport road - Passenger car', 'Transport road - Siren', ' ', 'accuracy', 'macro avg', 'weighted avg'],
-    'Precision': [0.76, 0.73, 1.00, 0.97, 0.79, ' ', '-', 0.85, 0.95],
-    'Recall': [0.78, 0.41, 0.99, 0.98, 0.65, ' ', '-', 0.77, 0.95],
-    'F1-Score': [0.77, 0.53, 1.00, 0.97, 0.71, ' ', 0.95, 0.80, 0.95],
+    'Precision': [0.41, 0.12, 0.51, 0.88, 0.33, ' ', '-', 0.45, 0.72],
+    'Recall': [0.68, 0.62, 0.37, 0.77, 0.77, ' ', '-', 0.64, 0.65],
+    'F1-Score': [0.51, 0.20, 0.43, 0.82, 0.47, ' ', 0.65, 0.49, 0.67],
     'Support': [1671, 352, 6224, 14301, 622, ' ', 23170, 23170, 23170]
 }
 classification_report_df = pd.DataFrame(classification_report_data)
 
-fig = '/assets/confusion_matrix.png'
-balanced_accuracy = 76.5
+feat_imp = '/assets/feature_importance.png'
+conf_mat = '/assets/confusion_matrix.png'
+roc = '/assets/ROC_curves.png'
+balanced_accuracy = 64.3
 
 # Mapping of class numbers to their corresponding labels
 label = {
@@ -36,6 +38,19 @@ df_label = pd.DataFrame(label)
 
 # Define the layout
 layout = html.Div([
+    html.P(['This page sumarizes the results obtained for the LightGBM model, which was the model that gave the best results with a balanced accuracy of 64.30%.'],
+           style={'margin-left':'20px', 'margin-top':'10px'}),
+
+    html.Ul([
+        html.Li("The Classification Report Table provides an overview of the model's performance across the various classes."),
+        html.Li("The Feature Importance allows to identify the features that have the most significant impact on the model's predictions."),
+        html.Li("The Confusion Matrix offers a visual representation of predicted labels compared to the actual labels."),
+        html.Li("The ROC Curves, using the One-vs-Rest approach, illustrates how well the model can differentiate between different classes,."),
+            ],style={'margin-left':'20px'}),
+
+    html.P(['The Predictions section allows users to upload a CSV file containing data for which labels need to be predicted. It employs a pre-trained model (the model mentioned previously) to generate predictions for the uploaded data. The predicted labels are then merged with the original data and made available for download as a CSV file. Additionally, the label counts table provides a summary of the frequency of each predicted label.'],
+           style={'margin-left':'20px', 'margin-bottom':'20px'}),
+
     dbc.Row([
         dbc.Col([
             html.H3('Classification Report', style={'margin-left':'50px', 'margin-top':'10px'}),
@@ -95,8 +110,22 @@ layout = html.Div([
 
         # Confusion Matrix image
         dbc.Col([
-        html.H3('Confusion Matrix', style={'margin-left':'70px', 'margin-top':'10px'}),
-        html.Img(src=fig, style={'width': '600px', 'margin-left':'70px', 'border': '1px solid black', 'margin-top':'10px'})
+            html.H3('Feature Importance', style={'margin-left':'120px', 'margin-top':'10px'}),
+            html.Img(src=feat_imp, style={'width': '430px', 'margin-left':'120px', 'border': '1px solid black', 'margin-top':'10px'})
+        ], width=6)
+    ], style={'background-color': '#F5F5F5'}),
+
+  dbc.Row([
+    # Confusion Matrix
+    dbc.Col([
+        html.H3('Confusion Matrix', style={'margin-left': '150px', 'margin-top': '50px'}),
+        html.Img(src=conf_mat, style={'width': '490px', 'margin-left': '150px', 'border': '1px solid black', 'margin-top': '10px'})
+    ], width=6),
+
+    # ROC curves
+    dbc.Col([
+        html.H3('ROC curves', style={'margin-left': '120px', 'margin-top': '50px'}),
+        html.Img(src=roc, style={'width': '500px', 'margin-left': '120px', 'border': '1px solid black', 'margin-top': '10px','margin-bottom': '20px'})
         ], width=6)
     ], style={'background-color': '#F5F5F5'}),
 
@@ -117,7 +146,6 @@ layout = html.Div([
             dcc.Upload(
                 id="upload-data",
                 children=html.Div([
-                    'Drag and Drop or ',
                     html.A('Select Files')
                 ]),
                 style={
@@ -129,13 +157,13 @@ layout = html.Div([
                     'borderRadius': '5px',
                     'textAlign': 'center',
                     'margin-left': '20px',
-                    'margin-bottom': '50px',
+                    'margin-bottom': '20px',
                     'display': 'inline-block'
                 },
                 multiple=False
             ),
         ], style={'display': 'inline-block'}),
-        html.Div(id='output-data-upload', style={'display': 'inline-block', 'vertical-align': 'top', 'margin-top': '45px'}),
+        html.Div(id='output-data-upload', style={'margin-left': '20px', 'margin-top': '10px'}),
     ])
 ])
 
@@ -147,15 +175,13 @@ layout = html.Div([
 
 
 def update_output(contents):
-
     if contents is not None:
         content_type, content_string = contents.split(',')
         
         decoded = base64.b64decode(content_string)
 
         try:
-            df_test = pd.read_csv(
-                io.StringIO(decoded.decode('utf-8')))
+            df_test = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
 
             # Loading the saved model (LightGBM)
             loaded_model = pickle.load(open('data/best_model.pkl', 'rb'))
@@ -181,6 +207,10 @@ def update_output(contents):
             # Concatenate original data with result
             merged_df = pd.concat([df_test, result], axis=1)
 
+            # Calculate label counts
+            label_counts = result['label'].value_counts().reset_index()
+            label_counts.columns = ['Label', 'Count']
+
             # Format CSV string for download
             csv_string = merged_df.to_csv(index=False)
             csv_string = "data:text/csv;charset=utf-8," + quote(csv_string, safe='')
@@ -188,9 +218,29 @@ def update_output(contents):
             # Display a link to download the merged data as a CSV file
             return html.Div([
                 html.A(
-                    dbc.Button('Download Predictions', id="download-button", outline=True, color="danger"),
+                    dbc.Button('Download Predictions', id="download-button", outline=True, color="danger", style={'margin-top': '-20px'}),
                     href=csv_string,
-                    download="merged_data.csv"
+                    download="merged_data.csv",
+                ),
+                html.H4('Label Counts', style={'margin-top': '25px'}),
+                dash_table.DataTable(
+                    id='label-counts-table',
+                    columns=[{"name": i, "id": i} for i in label_counts.columns],
+                    data=label_counts.to_dict('records'),
+                    style_table={'max-width': '300px',  # Set the maximum width of the table
+                                 'margin-left': '0px',
+                                 'margin-bottom': '30px',
+                                 'font-size': '14px',
+                                 'border-collapse': 'collapse',
+                                 'border-spacing': '0',
+                                 'text-align': 'center'},
+                    style_header={
+                        'background-color': 'rgba(0, 0, 0, 0.1)',
+                        'font-weight': 'bold',
+                    },
+                    style_cell={
+                        'background-color': 'rgba(255, 255, 255, 1)',
+                    },
                 )
             ])
 
