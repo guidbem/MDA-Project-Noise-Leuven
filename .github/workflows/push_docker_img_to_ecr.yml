@@ -9,7 +9,7 @@ jobs:
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
-    environment: aws_config
+    environment: deployment
     steps:
     - name: Checkout Repository code
       uses: actions/checkout@v2
