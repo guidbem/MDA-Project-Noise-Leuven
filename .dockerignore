@@ -1,0 +1,11 @@
+.venv/
+data/
+assets/
+build_container.ps1
+upload_img_aws.ps1
+create_venv.ps1
+*.md
+*.csv
+*.png
+*.ipynb
+*.pdf

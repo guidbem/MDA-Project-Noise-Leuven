@@ -158,7 +158,7 @@ def update_output(contents):
                 io.StringIO(decoded.decode('utf-8')))
 
             # Loading the saved model (LightGBM)
-            loaded_model = pickle.load(open('best_model.pkl', 'rb'))
+            loaded_model = pickle.load(open('data/best_model.pkl', 'rb'))
 
             # Predicting the labels
             pred = loaded_model.predict(df_test)

@@ -78,4 +78,5 @@ def update_active_link(pathname):
     return ["link active" if f"/{link_id.replace('-link', '')}" == pathname or link_id == "overview-link" and pathname == "/" else "link" for link_id in ["overview-link", "analysis-1-link", "analysis-2-link", "model-link", "about_us-link"]]
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='0.0.0.0', port=8080)
+    # If running locally instead of on Docker Container, access app at http://localhost:8080/
