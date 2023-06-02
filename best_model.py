@@ -139,6 +139,12 @@ y_pred_proba = pipeline.predict_proba(X_test)
 n_classes = 5
 true_labels = y_test 
 
+label = {
+    'Number': [0, 1, 2, 3, 4],
+    'String': ['Human voice - Shouting', 'Human voice - Singing', 'Other', 'Transport road - Passenger car', 'Transport road - Siren']
+}
+df_label = pd.DataFrame(label)
+
 # Binarize the true labels
 binarized_labels = label_binarize(true_labels, classes=np.unique(true_labels))
 
@@ -153,10 +159,10 @@ for i in range(n_classes):
 
 # Plot ROC curve for each class
 plt.figure(figsize=(8, 6))
-colors = ['blue', 'red', 'green', 'yellow', 'orange'] 
+colors = ['blue', 'red', 'green', 'yellow', 'orange']
 
 for i, color in zip(range(n_classes), colors):
-    plt.plot(fpr[i], tpr[i], color=color, lw=2, label='ROC curve of class {0} (area = {1:0.2f})'.format(i, roc_auc[i]))
+    plt.plot(fpr[i], tpr[i], color=color, lw=2, label='{0}'.format(df_label['String'][i], roc_auc[i]))
 
 plt.plot([0, 1], [0, 1], 'k--', lw=2)  # Plot diagonal line for reference
 plt.xlim([0.0, 1.0])
@@ -165,8 +171,8 @@ plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title('Receiver Operating Characteristic (ROC) Curve')
 plt.legend(loc="lower right")
-plt.savefig('assets/ROC_curves.png',bbox_inches='tight')
-plt.close() 
+plt.savefig('assets/ROC_curves.png', bbox_inches='tight')
+plt.close()
 
 
 
