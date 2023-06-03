@@ -3,6 +3,7 @@ numpy
 ipykernel
 seaborn
 scikit-learn==1.0.2
+category-encoders==2.6.1
 gdown
 polars
 folium
