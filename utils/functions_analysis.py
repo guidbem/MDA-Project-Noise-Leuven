@@ -1,5 +1,4 @@
 import pandas as pd
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
@@ -15,6 +14,8 @@ def avg_Meteo(parquet_file_path: str, output_path: str) :
     meteo=pd.read_parquet(parquet_file_path)
     meteo['DATEUTC'] = pd.to_datetime(meteo['DATEUTC'])
     meteo = meteo.set_index('DATEUTC')
+    # Dropping non-numerical columns
+    meteo.drop(columns=['ID', 'Date'], inplace=True)
     meteo_avg=meteo.groupby(level=0).mean()
     meteo_avg=pd.DataFrame(meteo_avg)
     meteo_avg.to_parquet(output_path)
