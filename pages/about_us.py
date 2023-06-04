@@ -47,8 +47,8 @@ layout = html.Div(
                     style={"text-align": "center"}
                 ),
                 html.P(
-                    "Our primary objective is to examine the correlation between noise levels and various meteorological factors, such as temperature, humidity, wind speed, and precipitation. "
-                    "We believe that understanding this relationship will not only shed light on the impact of weather on noise pollution but also provide valuable insights for urban planning, noise mitigation strategies, and enhancing the overall well-being of residents.",
+                    "Our main objective is to gain insights from data on noise levels and meteorology, specifically in the Naamsestraat area during 2022."
+                    "We aim to identify correlations between these variables and develop a predictive model for sound type classification.",
                     style={"text-align": "center"}
                 ),
                 html.H3(
